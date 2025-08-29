@@ -1,7 +1,7 @@
-
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -9,19 +9,19 @@ datasource db {
 
 model User {
   id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
+  clerkId   String    @unique
+  email     String
   projects  Project[]
   createdAt DateTime  @default(now())
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   prompt      String
   contentJSON Json
-  deployedUrl String?      // Optional, filled after Vercel deployment
+  deployedUrl String?
   userId      Int
-  user        User         @relation(fields: [userId], references: [id])
-  createdAt   DateTime     @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
 }
