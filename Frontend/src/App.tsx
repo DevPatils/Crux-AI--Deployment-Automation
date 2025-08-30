@@ -4,25 +4,33 @@ import Dashboard from "./components/Dashboard";
 import SignInPage from "./components/SignIn";
 import SignUpPage from "./components/SignUp";
 import { UserSync } from "./components/UserSync";
+import Navbar from "./components/Navbar";   
 
 function App() {
   return (
     <Router>
+      <Navbar/>
       <Routes>
+        {/* Public routes */}
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
 
+        {/* Protected routes */}
         <Route
           path="/dashboard"
           element={
             <SignedIn>
               <UserSync>
-                <Dashboard />
+                <>
+                       {/* Navbar visible only when signed in */}
+                  <Dashboard />
+                </>
               </UserSync>
             </SignedIn>
           }
         />
 
+        {/* Root redirect */}
         <Route
           path="/"
           element={
@@ -37,6 +45,7 @@ function App() {
           }
         />
 
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
