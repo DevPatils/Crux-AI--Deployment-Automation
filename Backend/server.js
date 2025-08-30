@@ -4,6 +4,7 @@ const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
 const { setupClerk, authMiddleware } = require("./middleware/auth");
 const userRoutes = require("./routes/user");
+const generateRoutes = require("./routes/generate");
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use(setupClerk);
 
 // Protected routes
 app.use("/users", userRoutes);
+app.use("/generate", generateRoutes);
 
 // Protected route: get projects for the logged-in user
 app.get("/projects", authMiddleware, async (req, res) => {

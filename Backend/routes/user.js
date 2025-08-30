@@ -2,11 +2,11 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const { authMiddleware } = require("../middleware/auth");
 
-const router = express.Router();
+const userrouter = express.Router();
 const prisma = new PrismaClient();
 
 // POST /users/sync - sync Clerk user to database
-router.post("/sync", authMiddleware, async (req, res) => {
+userrouter.post("/sync", authMiddleware, async (req, res) => {
   try {
     const clerkId = req.auth.userId;      // Clerk user ID from new middleware
     const { email } = req.body;           // Email from frontend
@@ -38,7 +38,7 @@ router.post("/sync", authMiddleware, async (req, res) => {
 });
 
 // GET /users/me - get current user info
-router.get("/me", authMiddleware, async (req, res) => {
+userrouter.get("/me", authMiddleware, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ 
       where: { clerkId: req.auth.userId },
@@ -56,4 +56,4 @@ router.get("/me", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = userrouter;
