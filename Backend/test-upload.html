@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Resume Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .upload-form {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+        .file-input {
+            margin: 20px 0;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .section h5 {
+            margin-top: 0;
+            color: #333;
+        }
+        .section ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .section li {
+            margin: 5px 0;
+        }
+        .project-item, .experience-item, .education-item, .cert-item {
+            background-color: #fff;
+            margin: 10px 0;
+        }
+        .project-item h6, .experience-item h6 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        details {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        summary {
+            padding: 5px;
+            background-color: #f1f1f1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Resume Upload</h1>
+    <div class="upload-form">
+        <h3>Upload Your Resume (PDF or DOCX)</h3>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="file-input">
+                <input type="file" id="resumeFile" name="resume" accept=".pdf,.docx" required>
+            </div>
+            <button type="submit" class="submit-btn" id="submitBtn">Upload Resume</button>
+        </form>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('resumeFile');
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                resultDiv.innerHTML = '<div class="result error">Please select a file</div>';
+                return;
+            }
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Uploading...';
+            resultDiv.innerHTML = '<div class="result">Processing your resume...</div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('resume', file);
+
+                const response = await fetch('http://localhost:5000/generate/upload-resume', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const resumeData = data.data;
+                    
+                    // Create a formatted display of the extracted data
+                    let displayHTML = `
+                        <div class="result success">
+                            <h4>✅ Resume processed successfully!</h4>
+                    `;
+                    
+                    // Personal Info
+                    if (resumeData.personalInfo) {
+                        displayHTML += `
+                            <div class="section">
+                                <h5>👤 Personal Information:</h5>
+                                <ul>
+                                    ${resumeData.personalInfo.name ? `<li><strong>Name:</strong> ${resumeData.personalInfo.name}</li>` : ''}
+                                    ${resumeData.personalInfo.title ? `<li><strong>Title:</strong> ${resumeData.personalInfo.title}</li>` : ''}
+                                    ${resumeData.personalInfo.email ? `<li><strong>Email:</strong> ${resumeData.personalInfo.email}</li>` : ''}
+                                    ${resumeData.personalInfo.phone ? `<li><strong>Phone:</strong> ${resumeData.personalInfo.phone}</li>` : ''}
+                                    ${resumeData.personalInfo.location ? `<li><strong>Location:</strong> ${resumeData.personalInfo.location}</li>` : ''}
+                                    ${resumeData.personalInfo.linkedin ? `<li><strong>LinkedIn:</strong> <a href="${resumeData.personalInfo.linkedin}" target="_blank">${resumeData.personalInfo.linkedin}</a></li>` : ''}
+                                    ${resumeData.personalInfo.github ? `<li><strong>GitHub:</strong> <a href="${resumeData.personalInfo.github}" target="_blank">${resumeData.personalInfo.github}</a></li>` : ''}
+                                </ul>
+                            </div>
+                        `;
+                    }
+                    
+                    // Projects - Enhanced Display
+                    if (resumeData.projects && resumeData.projects.length > 0) {
+                        displayHTML += `
+                            <div class="section">
+                                <h5>🚀 Projects (${resumeData.projects.length} found):</h5>
+                        `;
+                        resumeData.projects.forEach((project, index) => {
+                            displayHTML += `
+                                <div class="project-item" style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                    <h6><strong>${project.name || `Project ${index + 1}`}</strong></h6>
+                                    ${project.description ? `<p><strong>Description:</strong> ${project.description}</p>` : ''}
+                                    ${project.technologies && project.technologies.length > 0 ? `<p><strong>Technologies:</strong> ${project.technologies.join(', ')}</p>` : ''}
+                                    ${project.duration ? `<p><strong>Duration:</strong> ${project.duration}</p>` : ''}
+                                    ${project.role ? `<p><strong>Role:</strong> ${project.role}</p>` : ''}
+                                    ${project.achievements && project.achievements.length > 0 ? `<p><strong>Achievements:</strong><ul>${project.achievements.map(achievement => `<li>${achievement}</li>`).join('')}</ul></p>` : ''}
+                                    ${project.links ? `
+                                        <p><strong>Links:</strong>
+                                            ${project.links.github ? `<a href="${project.links.github}" target="_blank" style="margin-right: 10px;">GitHub</a>` : ''}
+                                            ${project.links.demo ? `<a href="${project.links.demo}" target="_blank" style="margin-right: 10px;">Demo</a>` : ''}
+                                            ${project.links.documentation ? `<a href="${project.links.documentation}" target="_blank">Documentation</a>` : ''}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            `;
+                        });
+                        displayHTML += `</div>`;
+                    }
+                    
+                    // Skills - Enhanced Display
+                    if (resumeData.skills) {
+                        displayHTML += `
+                            <div class="section">
+                                <h5>🛠️ Skills:</h5>
+                                ${resumeData.skills.technical && resumeData.skills.technical.length > 0 ? `<p><strong>Technical:</strong> ${resumeData.skills.technical.join(', ')}</p>` : ''}
+                                ${resumeData.skills.frameworks && resumeData.skills.frameworks.length > 0 ? `<p><strong>Frameworks:</strong> ${resumeData.skills.frameworks.join(', ')}</p>` : ''}
+                                ${resumeData.skills.databases && resumeData.skills.databases.length > 0 ? `<p><strong>Databases:</strong> ${resumeData.skills.databases.join(', ')}</p>` : ''}
+                                ${resumeData.skills.tools && resumeData.skills.tools.length > 0 ? `<p><strong>Tools:</strong> ${resumeData.skills.tools.join(', ')}</p>` : ''}
+                                ${resumeData.skills.languages && resumeData.skills.languages.length > 0 ? `<p><strong>Languages:</strong> ${resumeData.skills.languages.join(', ')}</p>` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    // Experience
+                    if (resumeData.experience && resumeData.experience.length > 0) {
+                        displayHTML += `
+                            <div class="section">
+                                <h5>💼 Experience (${resumeData.experience.length} positions):</h5>
+                        `;
+                        resumeData.experience.forEach((exp, index) => {
+                            displayHTML += `
+                                <div class="experience-item" style="border-left: 3px solid #007bff; padding-left: 10px; margin: 10px 0;">
+                                    <h6><strong>${exp.role || `Position ${index + 1}`}</strong> at ${exp.company || 'Company'}</h6>
+                                    ${exp.duration ? `<p><em>${exp.duration}</em></p>` : ''}
+                                    ${exp.description ? `<p>${exp.description}</p>` : ''}
+                                    ${exp.achievements && exp.achievements.length > 0 ? `<ul>${exp.achievements.map(achievement => `<li>${achievement}</li>`).join('')}</ul>` : ''}
+                                </div>
+                            `;
+                        });
+                        displayHTML += `</div>`;
+                    }
+                    
+                    // Education
+                    if (resumeData.education && resumeData.education.length > 0) {
+                        displayHTML += `
+                            <div class="section">
+                                <h5>🎓 Education:</h5>
+                        `;
+                        resumeData.education.forEach((edu, index) => {
+                            displayHTML += `
+                                <div class="education-item" style="margin: 10px 0;">
+                                    <p><strong>${edu.degree || 'Degree'}</strong> from ${edu.institution || 'Institution'}</p>
+                                    ${edu.duration ? `<p><em>${edu.duration}</em></p>` : ''}
+                                    ${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}
+                                </div>
+                            `;
+                        });
+                        displayHTML += `</div>`;
+                    }
+                    
+                    // Certifications
+                    if (resumeData.certifications && resumeData.certifications.length > 0) {
+                        displayHTML += `
+                            <div class="section">
+                                <h5>🏆 Certifications:</h5>
+                        `;
+                        resumeData.certifications.forEach((cert, index) => {
+                            displayHTML += `
+                                <div class="cert-item" style="margin: 10px 0;">
+                                    <p><strong>${cert.name || 'Certification'}</strong> by ${cert.issuer || 'Issuer'}</p>
+                                    ${cert.date ? `<p><em>Date: ${cert.date}</em></p>` : ''}
+                                    ${cert.credential_id ? `<p>ID: ${cert.credential_id}</p>` : ''}
+                                </div>
+                            `;
+                        });
+                        displayHTML += `</div>`;
+                    }
+                    
+                    displayHTML += `
+                            <details style="margin-top: 20px;">
+                                <summary style="cursor: pointer; font-weight: bold;">📄 Raw JSON Data</summary>
+                                <pre style="margin-top: 10px;">${JSON.stringify(resumeData, null, 2)}</pre>
+                            </details>
+                            ${data.extractedText ? `
+                            <details style="margin-top: 10px;">
+                                <summary style="cursor: pointer; font-weight: bold;">📝 Sample Extracted Text</summary>
+                                <pre style="margin-top: 10px;">${data.extractedText}</pre>
+                            </details>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    resultDiv.innerHTML = displayHTML;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h4>❌ Error:</h4>
+                            <p>${data.error || 'Unknown error occurred'}</p>
+                            ${data.rawResponse ? `<h5>Raw Response:</h5><pre>${data.rawResponse}</pre>` : ''}
+                            ${data.extractedText ? `<h5>Extracted Text:</h5><pre>${data.extractedText}</pre>` : ''}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h4>❌ Network Error:</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload Resume';
+            }
+        });
+    </script>
+</body>
+</html>
