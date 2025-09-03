@@ -5,12 +5,15 @@ import SignInPage from "./components/SignIn";
 import SignUpPage from "./components/SignUp";
 import { UserSync } from "./components/UserSync";
 import Navbar from "./components/Navbar";   
+import Resume from "./templets/temp1";
 
 function App() {
   return (
     <Router>
-      <Navbar/>
       <Routes>
+        {/* Portfolio Route - Public */}
+        <Route path="/portfolio" element={<Resume />} />
+        
         {/* Public routes */}
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
@@ -22,7 +25,7 @@ function App() {
             <SignedIn>
               <UserSync>
                 <>
-                       {/* Navbar visible only when signed in */}
+                  <Navbar/>
                   <Dashboard />
                 </>
               </UserSync>
@@ -36,7 +39,7 @@ function App() {
           element={
             <>
               <SignedOut>
-                <Navigate to="/signin" replace />
+                <Navigate to="/portfolio" replace />
               </SignedOut>
               <SignedIn>
                 <Navigate to="/dashboard" replace />
