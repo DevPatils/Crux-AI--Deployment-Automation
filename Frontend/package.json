@@ -13,6 +13,7 @@
     "@clerk/clerk-react": "^5.45.0",
     "@clerk/react-router": "^1.9.6",
     "@tailwindcss/vite": "^4.1.12",
+    "axios": "^1.11.0",
     "install": "^0.13.0",
     "npm": "^11.5.2",
     "react": "^19.1.1",

@@ -1,20 +1,69 @@
 import React from "react";
-import { UserButton } from "@clerk/clerk-react";
+import { UserButton, useUser } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
 
 const Navbar: React.FC = () => {
-  return (
-    <nav className="w-full bg-gray-900 text-white px-6 py-3 shadow-md flex items-center justify-between">
-      {/* Left spacer (to help center title) */}
-      <div className="w-24"></div>
+  const { isSignedIn } = useUser();
 
-      {/* Center Title */}
-      <div className="flex-1 text-center">
-        <h1 className="text-xl font-bold tracking-wide">CRUX AI</h1>
+  return (
+    <nav className="w-full bg-white border-b border-gray-200 text-gray-800 px-6 py-4 shadow-sm flex items-center justify-between">
+      {/* Left - Logo */}
+      <div className="flex items-center">
+        <Link to="/" className="text-2xl font-bold tracking-wide text-blue-600 hover:text-blue-700 transition-colors duration-300">
+          CRUX AI
+        </Link>
       </div>
 
-      {/* Right User Button */}
-      <div className="w-24 flex justify-end">
-        <UserButton afterSignOutUrl="/signin" />
+      {/* Center - Navigation Links */}
+      <div className="flex items-center space-x-8">
+        <Link 
+          to="/features" 
+          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium"
+        >
+          Features
+        </Link>
+        <Link 
+          to="/templates" 
+          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium"
+        >
+          Templates
+        </Link>
+        <Link 
+          to="/contact" 
+          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium"
+        >
+          Contact
+        </Link>
+      </div>
+
+      {/* Right - Authentication & Dashboard */}
+      <div className="flex items-center space-x-4">
+        {isSignedIn ? (
+          <>
+            <Link 
+              to="/dashboard" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-sm"
+            >
+              Dashboard
+            </Link>
+            <UserButton afterSignOutUrl="/signin" />
+          </>
+        ) : (
+          <div className="flex items-center space-x-3">
+            <Link 
+              to="/signin" 
+              className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg transition-all duration-300 font-medium"
+            >
+              Sign In
+            </Link>
+            <Link 
+              to="/signup" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-sm"
+            >
+              Sign Up
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );

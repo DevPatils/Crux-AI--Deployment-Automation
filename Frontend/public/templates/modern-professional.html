@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{personalInfo.name}} — {{personalInfo.title}}</title>
+  <meta name="description" content="Portfolio of {{personalInfo.name}}" />
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--muted:#9ca3af;--accent:#06b6d4}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg,#f8fafc, #eef2ff); color:#0f172a; margin:0}
+    .container{max-width:1000px;margin:36px auto;padding:28px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.08)}
+    header{display:flex;gap:20px;align-items:center}
+    .avatar{width:96px;height:96px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px}
+    .meta .name{font-size:22px;font-weight:700;margin-bottom:4px}
+    .meta .title{color:var(--muted);margin-bottom:6px}
+    .contact{color:var(--muted);font-size:13px}
+    .grid{display:flex;gap:24px;margin-top:20px}
+    .left{flex:2}
+    .right{flex:1}
+    section{margin-bottom:18px}
+    h3{margin:0 0 10px 0;font-size:16px}
+    .card{background:#f8fafc;padding:14px;border-radius:8px}
+    .exp-item{margin-bottom:12px}
+    .exp-item .row{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+    .skills{display:flex;flex-wrap:wrap;gap:8px}
+    .skill{background:#eef2ff;color:#0369a1;padding:6px 8px;border-radius:999px;font-size:13px}
+    .project{margin-bottom:12px}
+    footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
+    a { color: var(--accent); text-decoration: none }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="avatar">{{#if personalInfo.name}}{{personalInfo.name.[0]}}{{/if}}</div>
+      <div class="meta">
+        <div class="name">{{personalInfo.name}}</div>
+        <div class="title">{{personalInfo.title}}</div>
+        <div class="contact">{{personalInfo.location}} · {{personalInfo.email}} · {{personalInfo.phone}}</div>
+        <div class="contact">{{#if personalInfo.linkedin}}<a href="{{personalInfo.linkedin}}">LinkedIn</a>{{#if personalInfo.github}} · <a href="{{personalInfo.github}}">GitHub</a>{{/if}}{{/if}}</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="left">
+        <section>
+          <h3>Professional Summary</h3>
+          <div class="card">{{#if personalInfo.summary}}{{personalInfo.summary}}{{else}}Experienced professional with relevant industry experience and a focus on measurable outcomes.{{/if}}</div>
+        </section>
+
+        <section>
+          <h3>Experience</h3>
+          <div class="card">
+            {{#each experience}}
+              <div class="exp-item">
+                <div style="font-weight:600">{{role}} — {{company}}</div>
+                <div class="row"><div>{{duration}}</div><div>{{location}}</div></div>
+                <div style="margin-top:6px">{{description}}</div>
+                {{#if achievements}}
+                  <ul>
+                    {{#each achievements}}<li>{{this}}</li>{{/each}}
+                  </ul>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        </section>
+
+        <section>
+          <h3>Projects</h3>
+          <div class="card">
+            {{#each projects}}
+              <div class="project">
+                <div style="font-weight:600">{{name}} <span style="color:var(--muted);font-weight:400">— {{role}}</span></div>
+                <div style="margin-top:6px">{{description}}</div>
+                {{#if technologies}}<div style="margin-top:6px;color:var(--muted);font-size:13px">Tech: {{#each technologies}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</div>{{/if}}
+                {{#if links}}
+                  <div style="margin-top:6px"><a href="{{links.github}}">GitHub</a>{{#if links.demo}} · <a href="{{links.demo}}">Live</a>{{/if}}</div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        </section>
+      </div>
+
+      <aside class="right">
+        <section>
+          <h3>Skills</h3>
+          <div class="card skills">
+            {{#if skills.technical}}{{#each skills.technical}}<div class="skill">{{this}}</div>{{/each}}{{/if}}
+            {{#if skills.frameworks}}{{#each skills.frameworks}}<div class="skill">{{this}}</div>{{/each}}{{/if}}
+          </div>
+        </section>
+
+        <section>
+          <h3>Education</h3>
+          <div class="card">
+            {{#each education}}
+              <div style="margin-bottom:10px">
+                <div style="font-weight:600">{{degree}}</div>
+                <div style="color:var(--muted);font-size:13px">{{institution}} · {{duration}}</div>
+              </div>
+            {{/each}}
+          </div>
+        </section>
+
+        {{#if certifications}}
+        <section>
+          <h3>Certifications</h3>
+          <div class="card">
+            {{#each certifications}}<div style="margin-bottom:8px">{{name}} — <span style="color:var(--muted)">{{issuer}} · {{date}}</span></div>{{/each}}
+          </div>
+        </section>
+        {{/if}}
+      </aside>
+    </div>
+
+    <footer>
+      Built with AI · Portfolio generated from resume data
+    </footer>
+  </div>
+</body>
+</html>

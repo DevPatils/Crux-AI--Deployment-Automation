@@ -1,4 +1,5 @@
 // Portfolio Service - Fetches data from the upload-resume API
+import api from './api';
 
 export interface PersonalInfo {
   name: string;
@@ -144,16 +145,17 @@ export const uploadResumeAndFetchData = async (file: File): Promise<PortfolioDat
     const formData = new FormData();
     formData.append('resume', file);
 
-    const response = await fetch('http://localhost:5000/generate/upload-resume', {
-      method: 'POST',
-      body: formData
+    const response = await api.post('/generate/upload-resume', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
 
-    if (!response.ok) {
+    if (response.status !== 200) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const result: ApiResponse = await response.json();
+    const result: ApiResponse = response.data;
     
     if (result.success) {
       return result.data;
@@ -181,8 +183,7 @@ export const fetchPortfolioData = async (): Promise<PortfolioData | null> => {
 // Function to check if backend is available
 export const checkBackendHealth = async (): Promise<boolean> => {
   try {
-    await fetch('http://localhost:5000/generate/upload-resume', {
-      method: 'POST',
+    await api.post('/generate/upload-resume', {}, {
       headers: {
         'Content-Type': 'application/json'
       }

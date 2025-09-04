@@ -1,5 +1,6 @@
 import { useAuth, useUser, UserButton } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
+import api from "../services/api";
 
 interface Project {
   id: number;
@@ -21,18 +22,23 @@ export default function Dashboard() {
     const syncUser = async () => {
       if (!user) return;
 
-      const token = await getToken();
-      const res = await fetch("http://localhost:5000/users/sync", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: user.emailAddresses[0].emailAddress }),
-      });
+      try {
+        const token = await getToken();
+        const response = await api.post("/users/sync", 
+          { email: user.emailAddresses[0].emailAddress },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-      const dbUser = await res.json();
-      console.log("User synced to DB:", dbUser);
+        const dbUser = response.data;
+        console.log("User synced to DB:", dbUser);
+      } catch (error) {
+        console.error("Error syncing user:", error);
+      }
     };
 
     syncUser();
@@ -43,15 +49,15 @@ export default function Dashboard() {
     try {
       const token = await getToken();
       console.log(token);
-      const res = await fetch("http://localhost:5000/projects", {
+      const response = await api.get("/projects", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (res.ok) {
-        const data: Project[] = await res.json();
+      if (response.status === 200) {
+        const data: Project[] = response.data;
         setProjects(data);
       } else {
         console.error("Error fetching projects");
