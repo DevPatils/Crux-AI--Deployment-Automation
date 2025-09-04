@@ -63,6 +63,7 @@ app.post("/clerk/webhook", async (req, res) => {
 // Setup Clerk middleware for protected routes
 app.use(setupClerk);
 
+// Unprotected routes are mounted via routers (e.g., /generate)
 // Protected routes
 app.use("/users", userRoutes);
 app.use("/generate", generateRoutes);
