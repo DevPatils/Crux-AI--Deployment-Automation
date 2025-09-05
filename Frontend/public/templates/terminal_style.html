@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{personalInfo.name}} — Developer Terminal</title>
+    <meta name="description" content="Developer Portfolio of {{personalInfo.name}}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      body {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d1117 100%);
+        color: #00ff00;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+      
+      .terminal-window {
+        border: 2px solid #333;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+        margin-bottom: 2px;
+      }
+      
+      .terminal-header {
+        background: linear-gradient(90deg, #2d2d2d, #3d3d3d);
+        border-bottom: 1px solid #444;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 6px 6px 0 0;
+      }
+      
+      .terminal-controls {
+        display: flex;
+        gap: 8px;
+      }
+      
+      .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      
+      .dot-red { background: #ff5f56; }
+      .dot-yellow { background: #ffbd2e; }
+      .dot-green { background: #27ca3f; }
+      
+      .terminal-title {
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      
+      .terminal-content {
+        padding: 20px;
+        min-height: 200px;
+        background: #0a0a0a;
+      }
+      
+      .prompt::before {
+        content: "$ ";
+        color: #00ff00;
+        font-weight: bold;
+      }
+      
+      .nav-link {
+        color: #00ff00;
+        transition: all 0.3s ease;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        text-decoration: none;
+        position: relative;
+      }
+      
+      .nav-link:hover {
+        color: #ffffff;
+        text-shadow: 0 0 8px #00ff00;
+      }
+      
+      .terminal-button {
+        background: linear-gradient(45deg, #0a4a0a, #1a6a1a);
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        transition: all 0.3s ease;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      
+      .terminal-button:hover {
+        background: linear-gradient(45deg, #1a6a1a, #2a8a2a);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+        color: #ffffff;
+      }
+      
+      .code-highlight {
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 16px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      
+      .glow-text {
+        text-shadow: 0 0 10px #00ff00;
+      }
+      
+      .ascii-border {
+        font-family: 'JetBrains Mono', monospace;
+        text-align: center;
+      }
+      
+      .matrix-rain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.05;
+        pointer-events: none;
+      }
+      
+      /* Continuous terminal container */
+      .terminal-container {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        border: 2px solid #333;
+        border-radius: 12px;
+        box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
+        padding: 0;
+        overflow: hidden;
+      }
+      
+      .terminal-section {
+        border-bottom: 1px solid #333;
+      }
+      
+      .terminal-section:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Matrix Rain Background -->
+    <canvas class="matrix-rain" id="matrix"></canvas>
+    
+    <!-- Terminal Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-gray-800">
+      <div class="max-w-7xl mx-auto px-6 lg:px-10">
+        <div class="flex items-center justify-between h-20">
+          <div class="terminal-header-info">
+            <div class="text-green-400 font-bold text-lg">{{personalInfo.name}}@portfolio:~$</div>
+            <div class="text-gray-400 text-sm">{{personalInfo.title}}</div>
+          </div>
+          
+          <nav class="hidden md:flex space-x-8">
+            <a href="#about" class="nav-link">./about</a>
+            {{#if experience}}<a href="#experience" class="nav-link">./experience</a>{{/if}}
+            {{#if projects}}<a href="#projects" class="nav-link">./projects</a>{{/if}}
+            {{#if achievements}}<a href="#achievements" class="nav-link">./achievements</a>{{/if}}
+            {{#if education}}<a href="#education" class="nav-link">./education</a>{{/if}}
+            <a href="#contact" class="nav-link">./contact</a>
+          </nav>
+          
+          <div class="terminal-controls">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Terminal Content -->
+    <main id="top" class="max-w-7xl mx-auto px-6 lg:px-10 pt-40 pb-16 relative z-10">
+      <div class="terminal-container">
+        <!-- Terminal About Section -->
+        <section id="about" class="terminal-section">
+          <div class="terminal-header">
+            <div class="terminal-controls">
+              <div class="terminal-dot dot-red"></div>
+              <div class="terminal-dot dot-yellow"></div>
+              <div class="terminal-dot dot-green"></div>
+            </div>
+            <div class="terminal-title">about.sh</div>
+            <div></div>
+          </div>
+          <div class="terminal-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+              <!-- Profile Avatar -->
+              <div class="lg:col-span-1 text-center lg:text-left">
+                <div class="ascii-border mb-6">
+                  <pre class="text-green-400 text-xs">
+┌─────────────────────┐
+│                     │
+│    {{#if personalInfo.name}}{{personalInfo.name.[0]}}{{else}}?{{/if}}                │
+│                     │
+│  [DEVELOPER_MODE]   │
+│                     │
+└─────────────────────┘</pre>
+                </div>
+                
+                <div class="space-y-3">
+                  <div class="prompt">whoami</div>
+                  <div class="pl-4 text-white glow-text text-xl font-bold">{{personalInfo.name}}</div>
+                  
+                  <div class="prompt">cat /etc/role</div>
+                  <div class="pl-4 text-green-400">{{personalInfo.title}}</div>
+                  
+                  <div class="prompt">pwd</div>
+                  <div class="pl-4 text-yellow-400">{{personalInfo.location}}</div>
+                </div>
+
+                <div class="mt-6 space-y-2 text-sm">
+                  {{#if personalInfo.email}}
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-400">email:</span>
+                    <a href="mailto:{{personalInfo.email}}" class="text-blue-400 hover:text-blue-300">{{personalInfo.email}}</a>
+                  </div>
+                  {{/if}}
+                  {{#if personalInfo.phone}}
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-400">phone:</span>
+                    <span class="text-white">{{personalInfo.phone}}</span>
+                  </div>
+                  {{/if}}
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-2">
+                  {{#if personalInfo.linkedin}}
+                  <a href="{{personalInfo.linkedin}}" target="_blank" class="terminal-button text-xs">
+                    <i class="fab fa-linkedin"></i> connect
+                  </a>
+                  {{/if}}
+                  {{#if personalInfo.github}}
+                  <a href="{{personalInfo.github}}" target="_blank" class="terminal-button text-xs">
+                    <i class="fab fa-github"></i> repos
+                  </a>
+                  {{/if}}
+                  {{#if personalInfo.portfolio}}
+                  <a href="{{personalInfo.portfolio}}" target="_blank" class="terminal-button text-xs">
+                    <i class="fas fa-globe"></i> site
+                  </a>
+                  {{/if}}
+                </div>
+              </div>
+
+              <!-- About Content -->
+              <div class="lg:col-span-2 space-y-6">
+                <div>
+                  <div class="prompt">cat README.md</div>
+                  <div class="code-highlight mt-3">
+                    <div class="text-gray-400 text-xs mb-2"># Professional Summary</div>
+                    <p class="text-green-400 leading-relaxed">
+                      {{#if personalInfo.summary}}{{personalInfo.summary}}{{else}}Passionate developer with expertise in modern technologies. Focused on creating efficient, scalable solutions and contributing to innovative projects.{{/if}}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <div class="code-highlight">
+                    <div class="text-yellow-400 text-xs mb-2">## Current Status</div>
+                    <div class="text-green-400">Status: Active</div>
+                    <div class="text-green-400">Role: {{personalInfo.title}}</div>
+                    <div class="text-green-400">Location: {{personalInfo.location}}</div>
+                  </div>
+                  
+                  <div class="code-highlight">
+                    <div class="text-yellow-400 text-xs mb-2">## Quick Links</div>
+                    {{#if personalInfo.portfolio}}
+                    <div class="text-blue-400">→ Portfolio: <a href="{{personalInfo.portfolio}}" target="_blank" class="underline">Live Site</a></div>
+                    {{else}}
+                    <div class="text-gray-500">→ Explore sections below</div>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Terminal Experience Section -->
+        {{#if experience}}
+        <section id="experience" class="terminal-section">
+          <div class="terminal-header">
+            <div class="terminal-controls">
+              <div class="terminal-dot dot-red"></div>
+              <div class="terminal-dot dot-yellow"></div>
+              <div class="terminal-dot dot-green"></div>
+            </div>
+            <div class="terminal-title">experience.log</div>
+            <div></div>
+          </div>
+          <div class="terminal-content">
+            <div class="prompt">cat /var/log/career.log | grep -i experience</div>
+            
+            <div class="space-y-6 mt-6">
+              {{#each experience}}
+              <div class="border-l-4 border-green-400 pl-6 relative">
+                <div class="absolute -left-2 top-0 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+                
+                <div class="code-highlight">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                    <div>
+                      <div class="text-white font-bold text-lg glow-text">{{role}}</div>
+                      <div class="text-green-400 font-semibold">{{company}}</div>
+                    </div>
+                    <div class="text-yellow-400 text-sm font-mono">{{duration}}</div>
+                  </div>
+                  
+                  {{#if location}}
+                  <div class="text-gray-400 text-sm mb-3">
+                    <i class="fas fa-map-marker-alt"></i> {{location}}
+                  </div>
+                  {{/if}}
+                  
+                  {{#if description}}
+                  <div class="text-gray-300 mb-3 leading-relaxed">{{description}}</div>
+                  {{/if}}
+                  
+                  {{#if achievements}}
+                  <div class="space-y-2 mt-3">
+                    <div class="text-purple-400 text-sm font-semibold">Achievements:</div>
+                    <ul class="space-y-1">
+                      {{#each achievements}}
+                      <li class="text-gray-300 text-sm flex items-start gap-2">
+                        <span class="text-yellow-400 mt-1">★</span>
+                        <span>{{this}}</span>
+                      </li>
+                      {{/each}}
+                    </ul>
+                  </div>
+                  {{/if}}
+                </div>
+              </div>
+              {{/each}}
+            </div>
+            
+            <div class="prompt mt-6">tail -n 1 career.log</div>
+            <div class="pl-4 text-green-400 text-sm">Last updated: $(date)</div>
+          </div>
+        </section>
+        {{/if}}
+
+        <!-- Terminal Projects Section -->
+        {{#if projects}}
+        <section id="projects" class="terminal-section">
+          <div class="terminal-header">
+            <div class="terminal-controls">
+              <div class="terminal-dot dot-red"></div>
+              <div class="terminal-dot dot-yellow"></div>
+              <div class="terminal-dot dot-green"></div>
+            </div>
+            <div class="terminal-title">projects.js</div>
+            <div></div>
+          </div>
+          <div class="terminal-content">
+            <div class="prompt">ls -la ~/projects/</div>
+            
+            <div class="grid gap-6 mt-6">
+              {{#each projects}}
+              <div class="code-highlight group hover:bg-gray-900 transition-all duration-300 border border-gray-700 hover:border-green-400">
+                <div class="flex flex-col lg:flex-row gap-6">
+                  <div class="flex-1">
+                    <div class="flex items-start justify-between mb-3">
+                      <div>
+                        <div class="text-white font-bold text-lg glow-text mb-2">{{name}}</div>
+                        {{#if description}}
+                        <div class="text-gray-300 leading-relaxed mb-3">{{description}}</div>
+                        {{/if}}
+                      </div>
+                    </div>
+                    
+                    {{#if technologies}}
+                    <div class="mb-4">
+                      <div class="text-blue-400 text-sm font-semibold mb-2">Tech Stack:</div>
+                      <div class="flex flex-wrap gap-2">
+                        {{#each technologies}}
+                        <span class="px-2 py-1 bg-gray-800 border border-gray-600 text-green-400 text-xs rounded font-mono">{{this}}</span>
+                        {{/each}}
+                      </div>
+                    </div>
+                    {{/if}}
+                    
+                    {{#if features}}
+                    <div class="mb-4">
+                      <div class="text-purple-400 text-sm font-semibold mb-2">Features:</div>
+                      <ul class="space-y-1">
+                        {{#each features}}
+                        <li class="text-gray-300 text-sm flex items-start gap-2">
+                          <span class="text-green-400 mt-1">▸</span>
+                          <span>{{this}}</span>
+                        </li>
+                        {{/each}}
+                      </ul>
+                    </div>
+                    {{/if}}
+                    
+                    {{#if link}}
+                    <div class="flex gap-3">
+                      <a href="{{link}}" target="_blank" class="terminal-button">
+                        <i class="fas fa-external-link-alt"></i> View Project
+                      </a>
+                    </div>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+              {{/each}}
+            </div>
+            
+            <div class="prompt mt-6">echo "Total projects: {{projects.length}}"</div>
+            <div class="pl-4 text-green-400 text-sm">Total projects: {{projects.length}}</div>
+          </div>
+        </section>
+        {{/if}}
+
+        <!-- Terminal Achievements Section -->
+        {{#if achievements}}
+        <section id="achievements" class="terminal-section">
+          <div class="terminal-header">
+            <div class="terminal-controls">
+              <div class="terminal-dot dot-red"></div>
+              <div class="terminal-dot dot-yellow"></div>
+              <div class="terminal-dot dot-green"></div>
+            </div>
+            <div class="terminal-title">achievements.json</div>
+            <div></div>
+          </div>
+          <div class="terminal-content">
+            <div class="prompt">cat ~/achievements.json | jq '.'</div>
+            
+            <div class="space-y-4 mt-6">
+              {{#each achievements}}
+              <div class="code-highlight border border-gray-700 hover:border-yellow-400 transition-colors duration-300">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-8 h-8 bg-yellow-400 text-black rounded flex items-center justify-center font-bold text-sm">
+                    {{@index}}
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-white font-semibold glow-text mb-2">{{title}}</div>
+                    {{#if description}}
+                    <div class="text-gray-300 text-sm leading-relaxed mb-2">{{description}}</div>
+                    {{/if}}
+                    {{#if date}}
+                    <div class="text-yellow-400 text-xs font-mono">Achieved: {{date}}</div>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+              {{/each}}
+            </div>
+            
+            <div class="prompt mt-6">echo "Total achievements: {{achievements.length}}"</div>
+            <div class="pl-4 text-green-400 text-sm">Total achievements: {{achievements.length}}</div>
+          </div>
+        </section>
+        {{/if}}
+
+        <!-- Terminal Education Section -->
+        {{#if education}}
+        <section id="education" class="terminal-section">
+          <div class="terminal-header">
+            <div class="terminal-controls">
+              <div class="terminal-dot dot-red"></div>
+              <div class="terminal-dot dot-yellow"></div>
+              <div class="terminal-dot dot-green"></div>
+            </div>
+            <div class="terminal-title">education.log</div>
+            <div></div>
+          </div>
+          <div class="terminal-content">
+            <div class="prompt">cat ~/education/credentials.txt</div>
+            
+            <div class="space-y-6 mt-6">
+              {{#each education}}
+              <div class="border-l-4 border-blue-400 pl-6 relative">
+                <div class="absolute -left-2 top-0 w-4 h-4 bg-blue-400 rounded-full animate-pulse"></div>
+                
+                <div class="code-highlight">
+                  <div class="text-white font-bold text-lg glow-text mb-2">{{degree}}</div>
+                  <div class="text-blue-400 font-semibold mb-2">{{institution}}</div>
+                  
+                  <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+                    <div class="text-yellow-400">Duration: {{duration}}</div>
+                    {{#if gpa}}
+                    <div class="text-green-400">GPA: {{gpa}}</div>
+                    {{/if}}
+                  </div>
+                  
+                  {{#if description}}
+                  <div class="text-gray-300 text-sm leading-relaxed mb-3">{{description}}</div>
+                  {{/if}}
+                  
+                  {{#if coursework}}
+                  <div class="mb-3">
+                    <div class="text-purple-400 text-sm font-semibold mb-2">Relevant Coursework:</div>
+                    <div class="flex flex-wrap gap-2">
+                      {{#each coursework}}
+                      <span class="px-2 py-1 bg-gray-800 border border-gray-600 text-cyan-400 text-xs rounded font-mono">{{this}}</span>
+                      {{/each}}
+                    </div>
+                  </div>
+                  {{/if}}
+                </div>
+              </div>
+              {{/each}}
+            </div>
+            
+            <div class="prompt mt-6">wc -l education.log</div>
+            <div class="pl-4 text-green-400 text-sm">{{education.length}} education records found</div>
+          </div>
+        </section>
+        {{/if}}
+
+        <!-- Terminal Footer -->
+        <footer class="terminal-section">
+          <div class="terminal-header">
+            <div class="terminal-controls">
+              <div class="terminal-dot dot-red"></div>
+              <div class="terminal-dot dot-yellow"></div>
+              <div class="terminal-dot dot-green"></div>
+            </div>
+            <div class="terminal-title">contact.sh</div>
+            <div></div>
+          </div>
+          <div class="terminal-content">
+            <div class="grid md:grid-cols-2 gap-8">
+              <div>
+                <div class="prompt">echo "Let's connect and build something amazing together!"</div>
+                <div class="code-highlight mt-4">
+                  <div class="text-green-400 mb-4">Ready to collaborate? Reach out!</div>
+                  
+                  <div class="space-y-2 text-sm">
+                    {{#if personalInfo.email}}
+                    <div class="flex items-center gap-2">
+                      <span class="text-blue-400">email:</span>
+                      <a href="mailto:{{personalInfo.email}}" class="text-white hover:text-green-400 transition-colors">{{personalInfo.email}}</a>
+                    </div>
+                    {{/if}}
+                    {{#if personalInfo.phone}}
+                    <div class="flex items-center gap-2">
+                      <span class="text-blue-400">phone:</span>
+                      <span class="text-white">{{personalInfo.phone}}</span>
+                    </div>
+                    {{/if}}
+                    {{#if personalInfo.location}}
+                    <div class="flex items-center gap-2">
+                      <span class="text-blue-400">location:</span>
+                      <span class="text-white">{{personalInfo.location}}</span>
+                    </div>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="prompt">find ~/social -type l</div>
+                <div class="code-highlight mt-4">
+                  <div class="space-y-3">
+                    {{#if personalInfo.linkedin}}
+                    <a href="{{personalInfo.linkedin}}" target="_blank" class="terminal-button block text-center">
+                      <i class="fab fa-linkedin"></i> LinkedIn Profile
+                    </a>
+                    {{/if}}
+                    {{#if personalInfo.github}}
+                    <a href="{{personalInfo.github}}" target="_blank" class="terminal-button block text-center">
+                      <i class="fab fa-github"></i> GitHub Repositories
+                    </a>
+                    {{/if}}
+                    {{#if personalInfo.portfolio}}
+                    <a href="{{personalInfo.portfolio}}" target="_blank" class="terminal-button block text-center">
+                      <i class="fas fa-globe"></i> Portfolio Website
+                    </a>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="prompt mt-8">echo "© $(date +%Y) {{personalInfo.name}} - Portfolio Terminal v1.0"</div>
+            <div class="pl-4 text-gray-400 text-sm">© 2024 {{personalInfo.name}} - Portfolio Terminal v1.0</div>
+          </div>
+        </footer>
+      </div>
+    </main>
+
+    <script>
+      // Matrix Rain Effect
+      const canvas = document.getElementById('matrix');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const matrix = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+      const matrixArray = matrix.split("");
+
+      const fontSize = 10;
+      const columns = canvas.width / fontSize;
+
+      const drops = [];
+      for(let x = 0; x < columns; x++) {
+        drops[x] = 1;
+      }
+
+      function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#00ff00';
+        ctx.font = fontSize + 'px JetBrains Mono';
+        
+        for(let i = 0; i < drops.length; i++) {
+          const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          
+          if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      setInterval(draw, 35);
+
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Resize canvas on window resize
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    </script>
+  </body>
+</html>
