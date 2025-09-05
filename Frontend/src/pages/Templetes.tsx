@@ -30,12 +30,20 @@ const Templates: React.FC = () => {
       category: 'Professional'
     },
     {
-      id: 'classic-elegance',
+      id: 'classic-elegance-backup',
       name: 'Classic Elegance',
       description: 'Timeless, classic layout suitable for corporate and traditional industries.',
       preview: '/templates/classic-elegance.html',
       features: ['Professional Layout','Experience Timeline','PDF Download','Social Links'],
       category: 'Corporate'
+    },
+    {
+      id: 'terminal_style',
+      name: 'Terminal Style',
+      description: 'A developer-themed terminal interface portfolio with command-line aesthetics and Matrix rain effects.',
+      preview: '/templates/terminal_style.html',
+      features: ['Terminal Interface','Matrix Rain Effect','Command-Line Theme','Developer Focused'],
+      category: 'Developer'
     }
   ];
 
@@ -78,7 +86,186 @@ const Templates: React.FC = () => {
     try {
       const resp = await fetch(`/templates/${templateId}.html`);
       if (!resp.ok) throw new Error('Template not found');
-      const html = await resp.text();
+      let html = await resp.text();
+      
+      // Add dummy data for preview
+      const dummyData: Record<string, any> = {
+        personalInfo: {
+          name: "John Developer",
+          title: "Full Stack Developer",
+          location: "San Francisco, CA",
+          email: "john.developer@email.com",
+          phone: "+1 (555) 123-4567",
+          summary: "Passionate full-stack developer with 5+ years of experience building scalable web applications. Expertise in React, Node.js, and cloud technologies. Love solving complex problems and creating user-friendly solutions.",
+          linkedin: "https://linkedin.com/in/johndeveloper",
+          github: "https://github.com/johndeveloper",
+          portfolio: "https://johndeveloper.dev"
+        },
+        experience: [
+          {
+            role: "Senior Full Stack Developer",
+            company: "Tech Innovators Inc.",
+            location: "San Francisco, CA",
+            duration: "2022 - Present",
+            description: "Lead development of microservices architecture serving 1M+ users. Collaborated with cross-functional teams to deliver high-quality software solutions.",
+            achievements: [
+              "Improved application performance by 40% through optimization",
+              "Led a team of 5 developers on critical product features",
+              "Implemented CI/CD pipeline reducing deployment time by 60%"
+            ]
+          },
+          {
+            role: "Frontend Developer",
+            company: "Digital Solutions LLC",
+            location: "San Francisco, CA",
+            duration: "2020 - 2022",
+            description: "Developed responsive web applications using React and TypeScript. Worked closely with designers to implement pixel-perfect UI components.",
+            achievements: [
+              "Built 15+ reusable React components increasing development speed",
+              "Mentored 3 junior developers on best practices",
+              "Reduced bundle size by 30% through code optimization"
+            ]
+          }
+        ],
+        projects: [
+          {
+            name: "E-Commerce Platform",
+            description: "A full-stack e-commerce solution with real-time inventory management, payment processing, and admin dashboard.",
+            technologies: ["React", "Node.js", "MongoDB", "Stripe", "AWS"],
+            features: [
+              "Real-time inventory tracking",
+              "Secure payment processing",
+              "Admin dashboard with analytics",
+              "Mobile-responsive design"
+            ],
+            link: "https://github.com/johndeveloper/ecommerce-platform"
+          },
+          {
+            name: "Task Management App",
+            description: "A collaborative task management application with real-time updates, file sharing, and team communication features.",
+            technologies: ["Vue.js", "Express", "PostgreSQL", "Socket.io", "Docker"],
+            features: [
+              "Real-time collaboration",
+              "File upload and sharing",
+              "Team chat integration",
+              "Project timeline visualization"
+            ],
+            link: "https://github.com/johndeveloper/task-manager"
+          },
+          {
+            name: "Weather Analytics Dashboard",
+            description: "A data visualization dashboard showing weather patterns and climate data with interactive charts and maps.",
+            technologies: ["React", "D3.js", "Python", "FastAPI", "Redis"],
+            features: [
+              "Interactive data visualizations",
+              "Historical weather analysis",
+              "Real-time weather updates",
+              "Exportable reports"
+            ],
+            link: "https://github.com/johndeveloper/weather-dashboard"
+          }
+        ],
+        achievements: [
+          {
+            title: "AWS Certified Solutions Architect",
+            description: "Professional certification demonstrating expertise in designing distributed systems on AWS cloud platform.",
+            date: "2023",
+            organization: "Amazon Web Services"
+          },
+          {
+            title: "Best Innovation Award",
+            description: "Recognized for developing an AI-powered code review tool that improved team productivity by 25%.",
+            date: "2022",
+            organization: "Tech Innovators Inc."
+          },
+          {
+            title: "Open Source Contributor",
+            description: "Active contributor to popular open source projects with 500+ GitHub stars earned.",
+            date: "2021-Present",
+            organization: "GitHub Community"
+          }
+        ],
+        skills: {
+          technical: ["JavaScript", "TypeScript", "Python", "Java"],
+          frameworks: ["React", "Vue.js", "Express", "FastAPI"],
+          databases: ["MongoDB", "PostgreSQL", "Redis"],
+          tools: ["Docker", "AWS", "Git", "Webpack"],
+          languages: ["English", "Spanish"]
+        },
+        education: [
+          {
+            degree: "Bachelor of Science in Computer Science",
+            institution: "University of California, Berkeley",
+            duration: "2016 - 2020",
+            gpa: "3.8/4.0",
+            description: "Focused on software engineering, algorithms, and data structures. Graduated Magna Cum Laude.",
+            coursework: ["Data Structures", "Algorithms", "Software Engineering", "Database Systems", "Machine Learning"]
+          },
+          {
+            degree: "Full Stack Web Development Bootcamp",
+            institution: "General Assembly",
+            duration: "2020",
+            description: "Intensive 12-week program covering modern web development technologies and best practices."
+          }
+        ]
+      };
+
+      // Replace handlebars placeholders with dummy data for preview
+      Object.keys(dummyData).forEach(key => {
+        const value = dummyData[key];
+        if (Array.isArray(value)) {
+          // Handle arrays like experience, projects, etc.
+          html = html.replace(new RegExp(`{{#if ${key}}}([\\s\\S]*?){{/if}}`, 'g'), '$1');
+          html = html.replace(new RegExp(`{{#each ${key}}}([\\s\\S]*?){{/each}}`, 'g'), (_, content) => {
+            return value.map(() => content).join('');
+          });
+        } else if (typeof value === 'object') {
+          // Handle objects like personalInfo
+          Object.keys(value).forEach(subKey => {
+            const regex = new RegExp(`{{#if ${key}\\.${subKey}}}([\\s\\S]*?){{/if}}`, 'g');
+            html = html.replace(regex, '$1');
+            html = html.replace(new RegExp(`{{${key}\\.${subKey}}}`, 'g'), value[subKey]);
+          });
+        }
+      });
+
+      // Handle nested arrays and objects
+      dummyData.experience?.forEach((exp: any) => {
+        if (exp.achievements) {
+          exp.achievements.forEach((achievement: string) => {
+            html = html.replace('{{this}}', achievement);
+          });
+        }
+      });
+
+      dummyData.projects?.forEach((project: any) => {
+        if (project.technologies) {
+          project.technologies.forEach((tech: string) => {
+            html = html.replace('{{this}}', tech);
+          });
+        }
+        if (project.features) {
+          project.features.forEach((feature: string) => {
+            html = html.replace('{{this}}', feature);
+          });
+        }
+      });
+
+      dummyData.education?.forEach((edu: any) => {
+        if (edu.coursework) {
+          edu.coursework.forEach((course: string) => {
+            html = html.replace('{{this}}', course);
+          });
+        }
+      });
+
+      // Clean up any remaining handlebars syntax
+      html = html.replace(/{{[^}]*}}/g, '');
+      html = html.replace(/{{#if[^}]*}}/g, '');
+      html = html.replace(/{{\/if}}/g, '');
+      html = html.replace(/{{#each[^}]*}}/g, '');
+      html = html.replace(/{{\/each}}/g, '');
+
       setPreviewHtml(html);
       setIsPreviewOpen(true);
     } catch (err) {
@@ -105,15 +292,37 @@ const Templates: React.FC = () => {
 
         {/* Preview Modal */}
         {isPreviewOpen && previewHtml && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white max-w-4xl w-full h-[80vh] overflow-auto rounded-lg shadow-lg p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Template Preview</h3>
-                <button className="px-3 py-1 bg-gray-200 rounded" onClick={() => { setIsPreviewOpen(false); setPreviewHtml(null); }}>Close</button>
+          <div className="fixed inset-0 z-50 bg-white overflow-hidden">
+            {/* Full screen header bar */}
+            <div className="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-4 py-2 h-12">
+              <div className="flex items-center space-x-2">
+                <div className="flex space-x-1">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <span className="text-sm text-gray-600 ml-4">Portfolio Preview</span>
               </div>
-              <div className="prose max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
-              </div>
+              <button
+                onClick={() => { setIsPreviewOpen(false); setPreviewHtml(null); }}
+                className="text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200"
+              >
+                ×
+              </button>
+            </div>
+            
+            {/* Full screen content */}
+            <div className="w-full h-[calc(100vh-3rem)] overflow-auto bg-white">
+              <iframe
+                srcDoc={previewHtml}
+                className="w-full h-full border-0"
+                style={{
+                  minHeight: '100%',
+                  backgroundColor: 'white'
+                }}
+                title="Template Preview"
+                sandbox="allow-same-origin allow-scripts"
+              />
             </div>
           </div>
         )}

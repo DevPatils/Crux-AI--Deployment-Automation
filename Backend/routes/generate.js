@@ -207,6 +207,7 @@ Required structure:
       "role": "string",
       "company": "string", 
       "duration": "string",
+      "location": "string",
       "description": "string",
       "achievements": ["string"]
     }
@@ -216,14 +217,16 @@ Required structure:
       "name": "string",
       "description": "string",
       "technologies": ["string"],
-      "duration": "string",
-      "role": "string",
-      "achievements": ["string"],
-      "links": {
-        "github": "string",
-        "demo": "string",
-        "documentation": "string"
-      }
+      "features": ["string"],
+      "link": "string"
+    }
+  ],
+  "achievements": [
+    {
+      "title": "string",
+      "description": "string",
+      "date": "string",
+      "organization": "string"
     }
   ],
   "skills": {
@@ -239,7 +242,8 @@ Required structure:
       "institution": "string",
       "duration": "string",
       "gpa": "string",
-      "relevant_coursework": ["string"]
+      "description": "string",
+      "coursework": ["string"]
     }
   ],
   "certifications": [
@@ -251,6 +255,14 @@ Required structure:
     }
   ]
 }
+
+Focus especially on extracting:
+1. Project details with single most relevant link (prefer GitHub, then demo, then documentation)
+2. Separate achievements section for awards, certifications, recognitions not tied to specific jobs
+3. Technical skills categorized properly
+4. Work experience with specific achievements
+5. Personal contact information and professional links
+6. Only include fields that have actual data - leave out empty fields
 
 Resume Text: ${text}`
               }
@@ -448,6 +460,7 @@ Required structure:
       "role": "string",
       "company": "string", 
       "duration": "string",
+      "location": "string",
       "description": "string",
       "achievements": ["string"]
     }
@@ -457,14 +470,16 @@ Required structure:
       "name": "string",
       "description": "string",
       "technologies": ["string"],
-      "duration": "string",
-      "role": "string",
-      "achievements": ["string"],
-      "links": {
-        "github": "string",
-        "demo": "string",
-        "documentation": "string"
-      }
+      "features": ["string"],
+      "link": "string"
+    }
+  ],
+  "achievements": [
+    {
+      "title": "string",
+      "description": "string",
+      "date": "string",
+      "organization": "string"
     }
   ],
   "skills": {
@@ -480,7 +495,8 @@ Required structure:
       "institution": "string",
       "duration": "string",
       "gpa": "string",
-      "relevant_coursework": ["string"]
+      "description": "string",
+      "coursework": ["string"]
     }
   ],
   "certifications": [
@@ -494,10 +510,12 @@ Required structure:
 }
 
 Focus especially on extracting:
-1. All project details including technologies used, project descriptions, achievements, and any links
-2. Technical skills categorized properly
-3. Work experience with specific achievements
-4. Personal contact information and professional links
+1. Project details with single most relevant link (prefer GitHub, then demo, then documentation)
+2. Separate achievements section for awards, certifications, recognitions not tied to specific jobs
+3. Technical skills categorized properly
+4. Work experience with specific achievements
+5. Personal contact information and professional links
+6. Only include fields that have actual data - leave out empty fields
 
 Resume Text: ${text}`
               }

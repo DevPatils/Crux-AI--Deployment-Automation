@@ -34,28 +34,42 @@
     <header>
       <div class="avatar">{{#if personalInfo.name}}{{personalInfo.name.[0]}}{{/if}}</div>
       <div class="meta">
-        <div class="name">{{personalInfo.name}}</div>
-        <div class="title">{{personalInfo.title}}</div>
-        <div class="contact">{{personalInfo.location}} · {{personalInfo.email}} · {{personalInfo.phone}}</div>
-        <div class="contact">{{#if personalInfo.linkedin}}<a href="{{personalInfo.linkedin}}">LinkedIn</a>{{#if personalInfo.github}} · <a href="{{personalInfo.github}}">GitHub</a>{{/if}}{{/if}}</div>
+        {{#if personalInfo.name}}<div class="name">{{personalInfo.name}}</div>{{/if}}
+        {{#if personalInfo.title}}<div class="title">{{personalInfo.title}}</div>{{/if}}
+        <div class="contact">
+          {{#if personalInfo.location}}{{personalInfo.location}}{{/if}}
+          {{#if personalInfo.email}}{{#if personalInfo.location}} · {{/if}}{{personalInfo.email}}{{/if}}
+          {{#if personalInfo.phone}}{{#if personalInfo.email}} · {{/if}}{{personalInfo.phone}}{{/if}}
+        </div>
+        <div class="contact">
+          {{#if personalInfo.linkedin}}<a href="{{personalInfo.linkedin}}" target="_blank">LinkedIn</a>{{/if}}
+          {{#if personalInfo.github}}{{#if personalInfo.linkedin}} · {{/if}}<a href="{{personalInfo.github}}" target="_blank">GitHub</a>{{/if}}
+          {{#if personalInfo.portfolio}}{{#if personalInfo.linkedin}} · {{/if}}<a href="{{personalInfo.portfolio}}" target="_blank">Portfolio</a>{{/if}}
+        </div>
       </div>
     </header>
 
     <div class="grid">
       <div class="left">
+        {{#if personalInfo.summary}}
         <section>
           <h3>Professional Summary</h3>
-          <div class="card">{{#if personalInfo.summary}}{{personalInfo.summary}}{{else}}Experienced professional with relevant industry experience and a focus on measurable outcomes.{{/if}}</div>
+          <div class="card">{{personalInfo.summary}}</div>
         </section>
+        {{/if}}
 
+        {{#if experience}}
         <section>
           <h3>Experience</h3>
           <div class="card">
             {{#each experience}}
               <div class="exp-item">
-                <div style="font-weight:600">{{role}} — {{company}}</div>
-                <div class="row"><div>{{duration}}</div><div>{{location}}</div></div>
-                <div style="margin-top:6px">{{description}}</div>
+                {{#if role}}<div style="font-weight:600">{{role}}{{#if company}} — {{company}}{{/if}}</div>{{/if}}
+                <div class="row">
+                  {{#if duration}}<div>{{duration}}</div>{{/if}}
+                  {{#if location}}<div>{{location}}</div>{{/if}}
+                </div>
+                {{#if description}}<div style="margin-top:6px">{{description}}</div>{{/if}}
                 {{#if achievements}}
                   <ul>
                     {{#each achievements}}<li>{{this}}</li>{{/each}}
@@ -65,50 +79,93 @@
             {{/each}}
           </div>
         </section>
+        {{/if}}
 
+        {{#if projects}}
         <section>
           <h3>Projects</h3>
           <div class="card">
             {{#each projects}}
               <div class="project">
-                <div style="font-weight:600">{{name}} <span style="color:var(--muted);font-weight:400">— {{role}}</span></div>
-                <div style="margin-top:6px">{{description}}</div>
+                {{#if name}}<div style="font-weight:600">{{name}}</div>{{/if}}
+                {{#if description}}<div style="margin-top:6px">{{description}}</div>{{/if}}
                 {{#if technologies}}<div style="margin-top:6px;color:var(--muted);font-size:13px">Tech: {{#each technologies}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</div>{{/if}}
-                {{#if links}}
-                  <div style="margin-top:6px"><a href="{{links.github}}">GitHub</a>{{#if links.demo}} · <a href="{{links.demo}}">Live</a>{{/if}}</div>
+                {{#if features}}
+                  <ul style="margin-top:6px;font-size:13px">
+                    {{#each features}}<li>{{this}}</li>{{/each}}
+                  </ul>
                 {{/if}}
+                {{#if link}}<div style="margin-top:6px"><a href="{{link}}" target="_blank">View Project</a></div>{{/if}}
               </div>
             {{/each}}
           </div>
         </section>
+        {{/if}}
+
+        {{#if achievements}}
+        <section>
+          <h3>Achievements</h3>
+          <div class="card">
+            {{#each achievements}}
+              <div class="exp-item">
+                {{#if title}}<div style="font-weight:600">{{title}}</div>{{/if}}
+                {{#if organization}}<div style="color:var(--muted);font-size:13px">{{organization}}{{#if date}} · {{date}}{{/if}}</div>{{/if}}
+                {{#if description}}<div style="margin-top:6px">{{description}}</div>{{/if}}
+              </div>
+            {{/each}}
+          </div>
+        </section>
+        {{/if}}
       </div>
 
       <aside class="right">
+        {{#if skills}}
         <section>
           <h3>Skills</h3>
           <div class="card skills">
             {{#if skills.technical}}{{#each skills.technical}}<div class="skill">{{this}}</div>{{/each}}{{/if}}
             {{#if skills.frameworks}}{{#each skills.frameworks}}<div class="skill">{{this}}</div>{{/each}}{{/if}}
+            {{#if skills.databases}}{{#each skills.databases}}<div class="skill">{{this}}</div>{{/each}}{{/if}}
+            {{#if skills.tools}}{{#each skills.tools}}<div class="skill">{{this}}</div>{{/each}}{{/if}}
+            {{#if skills.languages}}{{#each skills.languages}}<div class="skill">{{this}}</div>{{/each}}{{/if}}
           </div>
         </section>
+        {{/if}}
 
+        {{#if education}}
         <section>
           <h3>Education</h3>
           <div class="card">
             {{#each education}}
               <div style="margin-bottom:10px">
-                <div style="font-weight:600">{{degree}}</div>
-                <div style="color:var(--muted);font-size:13px">{{institution}} · {{duration}}</div>
+                {{#if degree}}<div style="font-weight:600">{{degree}}</div>{{/if}}
+                <div style="color:var(--muted);font-size:13px">
+                  {{#if institution}}{{institution}}{{/if}}
+                  {{#if duration}}{{#if institution}} · {{/if}}{{duration}}{{/if}}
+                  {{#if gpa}}{{#if duration}} · {{/if}}GPA: {{gpa}}{{/if}}
+                </div>
+                {{#if description}}<div style="margin-top:4px;font-size:13px">{{description}}</div>{{/if}}
+                {{#if coursework}}
+                  <div style="margin-top:4px;font-size:12px;color:var(--muted)">
+                    <strong>Coursework:</strong> {{#each coursework}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+                  </div>
+                {{/if}}
               </div>
             {{/each}}
           </div>
         </section>
+        {{/if}}
 
         {{#if certifications}}
         <section>
           <h3>Certifications</h3>
           <div class="card">
-            {{#each certifications}}<div style="margin-bottom:8px">{{name}} — <span style="color:var(--muted)">{{issuer}} · {{date}}</span></div>{{/each}}
+            {{#each certifications}}
+              <div style="margin-bottom:8px">
+                {{#if name}}{{name}}{{/if}}
+                {{#if issuer}} — <span style="color:var(--muted)">{{issuer}}{{#if date}} · {{date}}{{/if}}</span>{{/if}}
+              </div>
+            {{/each}}
           </div>
         </section>
         {{/if}}

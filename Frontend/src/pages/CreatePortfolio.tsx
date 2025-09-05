@@ -188,7 +188,7 @@ const CreatePortfolio: React.FC = () => {
       default:
         return 'Selected Template';
     }
-  };
+  }; 
 
   if (!selectedTemplate) {
     return (
@@ -260,23 +260,50 @@ const CreatePortfolio: React.FC = () => {
           />
           {/* Compiled HTML Preview Modal */}
           {isPreviewOpen && compiledHtmlPreview && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white max-w-4xl w-full h-[80vh] overflow-auto rounded-lg shadow-lg p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Generated Portfolio Preview</h3>
-                  <div className="flex gap-2">
-                    <button className="px-3 py-1 bg-gray-200 rounded" onClick={() => { setIsPreviewOpen(false); setCompiledHtmlPreview(''); }}>Cancel</button>
-                    <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={async () => {
+            <div className="fixed inset-0 z-50 bg-white overflow-hidden">
+              {/* Full screen header bar */}
+              <div className="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-4 py-2 h-12">
+                <div className="flex items-center space-x-2">
+                  <div className="flex space-x-1">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-gray-600 ml-4">Generated Portfolio Preview</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium transition-colors"
+                    onClick={() => { setIsPreviewOpen(false); setCompiledHtmlPreview(''); }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
+                    onClick={async () => {
                       if (!compiledHtmlPreview) { alert('No compiled HTML ready to deploy'); return; }
                       const token = await getToken();
                       const projectName = `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-                      deployConfirmed(compiledHtmlPreview, projectName, token);
-                    }}>Confirm & Deploy</button>
-                  </div>
+                      deployConfirmed(compiledHtmlPreview, projectName, token || '');
+                    }}
+                  >
+                    Confirm & Deploy
+                  </button>
                 </div>
-                  <div className="prose max-w-none">
-                    <div dangerouslySetInnerHTML={{ __html: compiledHtmlPreview }} />
-                  </div>
+              </div>
+              
+              {/* Full screen content */}
+              <div className="w-full h-[calc(100vh-3rem)] overflow-auto bg-white">
+                <iframe
+                  srcDoc={compiledHtmlPreview}
+                  className="w-full h-full border-0"
+                  style={{
+                    minHeight: '100%',
+                    backgroundColor: 'white'
+                  }}
+                  title="Generated Portfolio Preview"
+                  sandbox="allow-same-origin allow-scripts"
+                />
               </div>
             </div>
           )}
