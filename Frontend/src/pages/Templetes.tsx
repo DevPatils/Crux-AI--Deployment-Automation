@@ -30,12 +30,12 @@ const Templates: React.FC = () => {
       category: 'Professional'
     },
     {
-      id: 'classic-elegance-backup',
-      name: 'Classic Elegance',
-      description: 'Timeless, classic layout suitable for corporate and traditional industries.',
-      preview: '/templates/classic-elegance.html',
-      features: ['Professional Layout','Experience Timeline','PDF Download','Social Links'],
-      category: 'Corporate'
+      id: 'dark-professional',
+      name: 'Dark Professional',
+      description: 'A complete website-style portfolio with navigation, hero section, and smooth scrolling animations for modern professionals.',
+      preview: '/templates/dark-professional.html',
+      features: ['Navigation Bar','Hero Section','Smooth Scrolling','Website Layout','Dark Theme','Animations'],
+      category: 'Professional'
     },
     {
       id: 'terminal_style',
