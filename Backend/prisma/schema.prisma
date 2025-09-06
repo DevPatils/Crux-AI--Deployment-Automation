@@ -11,17 +11,17 @@ model User {
   id        Int       @id @default(autoincrement())
   clerkId   String    @unique
   email     String
-  projects  Project[]
   createdAt DateTime  @default(now())
+  projects  Project[]
 }
 
 model Project {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   prompt      String
   contentJSON Json
   deployedUrl String?
   userId      Int
-  user        User      @relation(fields: [userId], references: [id])
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
 }

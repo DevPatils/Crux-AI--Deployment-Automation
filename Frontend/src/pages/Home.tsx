@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import Navbar from '../components/Navbar';
+
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 relative overflow-hidden">
-      <Navbar />
+     
       
       {/* Subtle background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

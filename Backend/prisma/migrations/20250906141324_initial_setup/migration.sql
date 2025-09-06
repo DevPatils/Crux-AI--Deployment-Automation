@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "public"."User" (
     "id" SERIAL NOT NULL,
+    "clerkId" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -22,7 +22,7 @@ CREATE TABLE "public"."Project" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
+CREATE UNIQUE INDEX "User_clerkId_key" ON "public"."User"("clerkId");
 
 -- AddForeignKey
 ALTER TABLE "public"."Project" ADD CONSTRAINT "Project_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

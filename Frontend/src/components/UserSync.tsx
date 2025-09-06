@@ -11,25 +11,25 @@ export const UserSync = ({ children }: { children: React.ReactNode }) => {
       if (isLoaded && user) {
         try {
           const token = await getToken();
-          const response = await api.post("/users/signup", 
+          const response = await api.post(
+            "/users/sync",   // ✅ FIXED ENDPOINT
             {
               email: user.emailAddresses[0]?.emailAddress,
             },
             {
               headers: {
-                "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }
           );
 
-          if (response.status !== 200) {
-            console.error("Failed to sync user to database");
+          if (response.status === 200) {
+            console.log("✅ User synced to DB:", response.data);
           } else {
-            console.log("User synced to database successfully");
+            console.error("❌ Failed to sync user to database");
           }
         } catch (error) {
-          console.error("Error syncing user:", error);
+          console.error("❌ Error syncing user:", error);
         }
       }
     };
