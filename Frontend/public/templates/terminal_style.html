@@ -228,30 +228,30 @@
                   {{#if personalInfo.email}}
                   <div class="flex items-center gap-2">
                     <span class="text-green-400">email:</span>
-                    <a href="mailto:{{personalInfo.email}}" class="text-blue-400 hover:text-blue-300">{{personalInfo.email}}</a>
+                    <a href="mailto:{{personalInfo.email}}" target="_blank" class="text-blue-400 hover:text-blue-300">{{personalInfo.email}}</a>
                   </div>
                   {{/if}}
                   {{#if personalInfo.phone}}
                   <div class="flex items-center gap-2">
                     <span class="text-green-400">phone:</span>
-                    <span class="text-white">{{personalInfo.phone}}</span>
+                    <a href="tel:{{personalInfo.phone}}" target="_blank" class="text-white hover:text-green-400">{{personalInfo.phone}}</a>
                   </div>
                   {{/if}}
                 </div>
 
                 <div class="mt-6 flex flex-wrap gap-2">
                   {{#if personalInfo.linkedin}}
-                  <a href="{{personalInfo.linkedin}}" target="_blank" class="terminal-button text-xs">
+                  <a href="{{personalInfo.linkedin}}" target="_blank" rel="noopener noreferrer" class="terminal-button text-xs social-url-fix" data-url="{{personalInfo.linkedin}}">
                     <i class="fab fa-linkedin"></i> connect
                   </a>
                   {{/if}}
                   {{#if personalInfo.github}}
-                  <a href="{{personalInfo.github}}" target="_blank" class="terminal-button text-xs">
+                  <a href="{{personalInfo.github}}" target="_blank" rel="noopener noreferrer" class="terminal-button text-xs social-url-fix" data-url="{{personalInfo.github}}">
                     <i class="fab fa-github"></i> repos
                   </a>
                   {{/if}}
                   {{#if personalInfo.portfolio}}
-                  <a href="{{personalInfo.portfolio}}" target="_blank" class="terminal-button text-xs">
+                  <a href="{{personalInfo.portfolio}}" target="_blank" rel="noopener noreferrer" class="terminal-button text-xs social-url-fix" data-url="{{personalInfo.portfolio}}">
                     <i class="fas fa-globe"></i> site
                   </a>
                   {{/if}}
@@ -599,6 +599,35 @@
     </main>
 
     <script>
+      // Fix URLs to ensure they have proper protocols
+      function fixURL(url) {
+        if (!url) return url;
+        
+        // If URL doesn't start with http:// or https://, add https://
+        if (!/^https?:\/\//i.test(url)) {
+          return 'https://' + url;
+        }
+        return url;
+      }
+
+      // Fix all social links on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.social-url-fix').forEach(link => {
+          const originalUrl = link.dataset.url;
+          if (originalUrl) {
+            const fixedUrl = fixURL(originalUrl);
+            link.href = fixedUrl;
+          }
+        });
+
+        // Hide empty social link containers
+        document.querySelectorAll('.mt-6.flex.flex-wrap.gap-2').forEach(container => {
+          if (container.children.length === 0 || container.textContent.trim() === '') {
+            container.style.display = 'none';
+          }
+        });
+      });
+
       // Matrix Rain Effect
       const canvas = document.getElementById('matrix');
       const ctx = canvas.getContext('2d');
