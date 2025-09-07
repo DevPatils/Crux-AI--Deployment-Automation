@@ -276,8 +276,7 @@ const Templates: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
+  
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Header Section */}
         <div className="text-center mb-12">

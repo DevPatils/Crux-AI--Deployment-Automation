@@ -203,7 +203,7 @@ const CreatePortfolio: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 relative overflow-hidden">
-      <Navbar />
+   
       
       {/* Subtle background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
