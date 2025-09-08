@@ -321,8 +321,8 @@ genrouter.post("/portfolio", upload.single("resume"), async (req, res) => {
       }
 
       // Step 2: Parse with AI
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent({
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const result = await model.generateContent({
         contents: [
           {
             role: "user",
@@ -411,8 +411,15 @@ Resume Text: ${text}`
         ]
       });
 
-      let jsonData = result.response.candidates[0]?.content.parts[0]?.text || "{}";
-      jsonData = jsonData.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      // Defensive logging: capture full AI response for debugging
+      try {
+        console.log('Gemini raw response:', JSON.stringify(result, null, 2));
+      } catch (logErr) {
+        console.log('Could not stringify Gemini response');
+      }
+
+      let jsonData = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+      jsonData = String(jsonData).replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
       const parsedData = JSON.parse(jsonData);
       

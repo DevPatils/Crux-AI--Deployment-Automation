@@ -153,12 +153,10 @@ const CreatePortfolio: React.FC = () => {
       // The modal's Confirm button triggers deployConfirmed(compiledHtml, projectName, token)
     } catch (error) {
       console.error('Portfolio generation error:', error);
-      const errorMessage = error instanceof Error && 'response' in error && 
-        error.response && typeof error.response === 'object' &&
-        'data' in error.response && error.response.data &&
-        typeof error.response.data === 'object' && 'error' in error.response.data
-        ? String(error.response.data.error)
-        : 'Portfolio generation failed. Please try again.';
+      // Prefer backend-provided message when available
+  // @ts-expect-error - error may be AxiosError with response structure
+  const backendMsg = error?.response?.data?.error || error?.response?.data?.details || error?.message;
+      const errorMessage = backendMsg || 'Portfolio generation failed. Please try again.';
       alert(errorMessage);
     } finally {
       setIsUploading(false);
