@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
-  onUpload: (file: File) => Promise<void>;
+  onUpload: (file: File, avatar?: File) => Promise<void>;
   isUploading: boolean;
   isAuthenticated?: boolean;
   className?: string;
+  showAvatarUpload?: boolean;
+  templateName?: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ 
@@ -14,11 +16,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
   onUpload, 
   isUploading, 
   isAuthenticated = false,
-  className = "" 
+  className = "",
+  showAvatarUpload = false,
+  templateName = ""
 }) => {
   const [file, setFile] = useState<File | null>(null);
+  const [avatar, setAvatar] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (selectedFile: File) => {
     if (!isAuthenticated) {
@@ -60,14 +66,46 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
+  const handleAvatarSelect = (selectedFile: File) => {
+    if (!isAuthenticated) {
+      alert('Please sign in to upload your avatar.');
+      return;
+    }
+    
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (selectedFile && allowedTypes.includes(selectedFile.type)) {
+      // Check file size (max 5MB)
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        alert('Avatar file size must be less than 5MB');
+        return;
+      }
+      setAvatar(selectedFile);
+    } else {
+      alert('Please select a valid image file (JPEG, PNG, or WebP)');
+    }
+  };
+
+  const handleAvatarInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      handleAvatarSelect(selectedFile);
+    }
+  };
+
   const handleUploadClick = async () => {
     if (file) {
-      await onUpload(file);
+      await onUpload(file, avatar || undefined);
     }
   };
 
   const handleRemoveFile = () => {
     setFile(null);
+    // Also clear avatar when resume is removed
+    setAvatar(null);
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatar(null);
   };
 
   return (
@@ -173,6 +211,64 @@ const FileUpload: React.FC<FileUploadProps> = ({
               </div>
             )}
           </div>
+
+          {/* Avatar Upload Section - Only show for modern-professional template and after resume is selected */}
+          {showAvatarUpload && file && isAuthenticated && (
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center mb-3">
+                <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                </svg>
+                <h3 className="text-sm font-semibold text-blue-800">Profile Picture (Optional)</h3>
+              </div>
+              <p className="text-xs text-blue-700 mb-3">
+                Add a profile picture to personalize your {templateName} portfolio
+              </p>
+              
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarInputChange}
+                className="hidden"
+              />
+              
+              {avatar ? (
+                <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-blue-300">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{avatar.name}</p>
+                      <p className="text-xs text-gray-500">{(avatar.size / (1024 * 1024)).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleRemoveAvatar}
+                    className="text-red-600 hover:text-red-700 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="w-full p-3 border-2 border-dashed border-blue-300 rounded-lg text-center hover:border-blue-400 hover:bg-blue-100 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <svg className="w-6 h-6 text-blue-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <p className="text-sm text-blue-700">Click to select profile picture</p>
+                    <p className="text-xs text-blue-600">JPEG, PNG, WebP (max 5MB)</p>
+                  </div>
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Action Buttons */}
           {isAuthenticated && (

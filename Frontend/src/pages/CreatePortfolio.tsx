@@ -7,6 +7,7 @@ import FileUpload from '../components/FileUpload';
 
 const CreatePortfolio: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [compiledHtmlPreview, setCompiledHtmlPreview] = useState<string>('');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -55,7 +56,7 @@ const CreatePortfolio: React.FC = () => {
     setSelectedFile(file);
   };
 
-  const handleUpload = async (file: File) => {
+  const handleUpload = async (file: File, avatar?: File) => {
     if (!isSignedIn) {
       alert('Please sign in to upload your resume.');
       return;
@@ -73,6 +74,11 @@ const CreatePortfolio: React.FC = () => {
       const formData = new FormData();
       formData.append('resume', file);
       formData.append('templateId', selectedTemplate);
+
+      // Add avatar if provided (only for modern-professional template)
+      if (avatar && selectedTemplate === 'modern-professional') {
+        formData.append('avatar', avatar);
+      }
 
       // Prefer templateHtml provided via navigation state or localStorage (Templates.tsx stores selectedTemplateHtml)
       const templateFromState = location.state?.templateHtml;
@@ -257,6 +263,8 @@ const CreatePortfolio: React.FC = () => {
             onUpload={handleUpload}
             isUploading={isUploading}
             isAuthenticated={isSignedIn}
+            showAvatarUpload={selectedTemplate === 'modern-professional'}
+            templateName={getTemplateName(selectedTemplate)}
           />
           {/* Compiled HTML Preview Modal */}
           {isPreviewOpen && compiledHtmlPreview && (

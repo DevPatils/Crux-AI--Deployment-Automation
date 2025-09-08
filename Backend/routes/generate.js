@@ -390,12 +390,14 @@ Resume Text: ${text}`
 
 
 
-genrouter.post("/upload-resume", upload.single("resume"), async (req, res) => {
+genrouter.post("/upload-resume", upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'avatar', maxCount: 1 }]), async (req, res) => {
   try {
-    const file = req.file;
+    const files = req.files;
+    const resumeFile = files?.resume?.[0];
+    const avatarFile = files?.avatar?.[0];
     const { templateId } = req.body;
     
-    if (!file) {
+    if (!resumeFile) {
       return res.status(400).json({ error: "Resume file is required" });
     }
 
@@ -403,31 +405,52 @@ genrouter.post("/upload-resume", upload.single("resume"), async (req, res) => {
       return res.status(400).json({ error: "Template ID is required" });
     }
 
-    // Validate file type
+    // Validate resume file type
     const allowedMimeTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      // Clean up uploaded file
-      fs.unlinkSync(file.path);
+    if (!allowedMimeTypes.includes(resumeFile.mimetype)) {
+      // Clean up uploaded files
+      try { fs.unlinkSync(resumeFile.path); } catch (e) { console.error('Resume cleanup error:', e); }
+      if (avatarFile) {
+        try { fs.unlinkSync(avatarFile.path); } catch (e) { console.error('Avatar cleanup error:', e); }
+      }
       return res.status(400).json({ error: "Only PDF and DOCX files are supported" });
     }
 
-    // Read and parse the file content
+    // Validate avatar file type if provided
+    if (avatarFile) {
+      const allowedAvatarTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedAvatarTypes.includes(avatarFile.mimetype)) {
+        // Clean up uploaded files
+        try { fs.unlinkSync(resumeFile.path); } catch (e) { console.error('Resume cleanup error:', e); }
+        try { fs.unlinkSync(avatarFile.path); } catch (e) { console.error('Avatar cleanup error:', e); }
+        return res.status(400).json({ error: "Avatar must be a JPEG, PNG, or WebP image" });
+      }
+      
+      // Check avatar file size (max 5MB)
+      if (avatarFile.size > 5 * 1024 * 1024) {
+        try { fs.unlinkSync(resumeFile.path); } catch (e) { console.error('Resume cleanup error:', e); }
+        try { fs.unlinkSync(avatarFile.path); } catch (e) { console.error('Avatar cleanup error:', e); }
+        return res.status(400).json({ error: "Avatar file size must be less than 5MB" });
+      }
+    }
+
+    // Read and parse the resume file content
     let text = "";
 
     try {
-      if (file.mimetype === 'application/pdf') {
+      if (resumeFile.mimetype === 'application/pdf') {
         const pdfParse = require("pdf-parse");
-        const dataBuffer = fs.readFileSync(file.path);
+        const dataBuffer = fs.readFileSync(resumeFile.path);
         const pdfData = await pdfParse(dataBuffer);
         text = pdfData.text;
-      } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      } else if (resumeFile.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         // For DOCX files, we'll use a simple text extraction
         // Note: You might want to install 'mammoth' package for better DOCX parsing
         text = "DOCX parsing not fully implemented. Please use PDF format.";
       }
 
-      // Clean up the uploaded file
-      fs.unlinkSync(file.path);
+      // Clean up the uploaded resume file
+      try { fs.unlinkSync(resumeFile.path); } catch (e) { console.error('Resume cleanup error:', e); }
 
       if (!text || text.trim().length === 0) {
         return res.status(400).json({ error: "Could not extract text from the uploaded file" });
@@ -532,6 +555,30 @@ Resume Text: ${text}`
       try {
         const parsedData = JSON.parse(jsonData);
         
+        // Process avatar if provided
+        if (avatarFile) {
+          try {
+            const avatarBuffer = fs.readFileSync(avatarFile.path);
+            const base64Avatar = avatarBuffer.toString('base64');
+            const mimeType = avatarFile.mimetype;
+            const dataUrl = `data:${mimeType};base64,${base64Avatar}`;
+            
+            // Add profile picture to parsed data
+            if (!parsedData.personalInfo) {
+              parsedData.personalInfo = {};
+            }
+            parsedData.personalInfo.profilePicture = dataUrl;
+            
+            // Clean up avatar file
+            try { fs.unlinkSync(avatarFile.path); } catch (e) { console.error('Avatar cleanup error:', e); }
+          } catch (avatarError) {
+            console.error('Avatar processing error:', avatarError);
+            // Clean up avatar file on error
+            try { fs.unlinkSync(avatarFile.path); } catch (e) { console.error('Avatar cleanup error:', e); }
+            // Don't fail the entire request for avatar processing errors
+          }
+        }
+        
         // Generate HTML from template
         const templateHtmlFromClient = req.body.templateHtml;
         let populatedHTML = null;
@@ -577,11 +624,19 @@ Resume Text: ${text}`
       }
 
     } catch (fileError) {
-      // Clean up file on error
+      // Clean up files on error
       try {
-        fs.unlinkSync(file.path);
+        fs.unlinkSync(resumeFile.path);
       } catch (cleanupError) {
-        console.error("File cleanup error:", cleanupError);
+        console.error("Resume file cleanup error:", cleanupError);
+      }
+      
+      if (avatarFile) {
+        try {
+          fs.unlinkSync(avatarFile.path);
+        } catch (cleanupError) {
+          console.error("Avatar file cleanup error:", cleanupError);
+        }
       }
 
       console.error("File processing error:", fileError);
@@ -591,12 +646,21 @@ Resume Text: ${text}`
   } catch (err) {
     console.error("Upload-resume error:", err);
 
-    // Clean up file if it exists
-    if (req.file) {
+    // Clean up files if they exist
+    const files = req.files;
+    if (files?.resume?.[0]) {
       try {
-        fs.unlinkSync(req.file.path);
+        fs.unlinkSync(files.resume[0].path);
       } catch (cleanupError) {
-        console.error("File cleanup error:", cleanupError);
+        console.error("Resume cleanup error:", cleanupError);
+      }
+    }
+    
+    if (files?.avatar?.[0]) {
+      try {
+        fs.unlinkSync(files.avatar[0].path);
+      } catch (cleanupError) {
+        console.error("Avatar cleanup error:", cleanupError);
       }
     }
 

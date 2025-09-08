@@ -941,11 +941,13 @@
   <div class="container">
     <header class="header">
       <div class="avatar-container">
-        {{#if personalInfo.profilePicture}}
-          <div class="avatar"><img src="{{personalInfo.profilePicture}}" alt="{{personalInfo.name}}" /></div>
-        {{else}}
-          <div class="avatar">{{#if personalInfo.name}}{{personalInfo.name.[0]}}{{/if}}</div>
-        {{/if}}
+        <div class="avatar">
+          {{#if personalInfo.profilePicture}}
+            <img src="{{personalInfo.profilePicture}}" alt="{{personalInfo.name}}" />
+          {{else}}
+            {{#if personalInfo.name}}{{personalInfo.name.[0]}}{{/if}}
+          {{/if}}
+        </div>
       </div>
       {{#if personalInfo.name}}<h1 class="name">{{personalInfo.name}}</h1>{{/if}}
       {{#if personalInfo.title}}<p class="title">{{personalInfo.title}}</p>{{/if}}
