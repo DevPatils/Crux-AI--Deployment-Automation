@@ -17,10 +17,10 @@ const Navbar: React.FC = () => {
       {/* Center - Navigation Links */}
       <div className="flex items-center space-x-8">
         <Link 
-          to="/features" 
+          to="/" 
           className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium"
         >
-          Features
+          Home
         </Link>
         <Link 
           to="/templates" 
@@ -29,10 +29,10 @@ const Navbar: React.FC = () => {
           Templates
         </Link>
         <Link 
-          to="/contact" 
+          to="/dashboard" 
           className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium"
         >
-          Contact
+          Dashboard
         </Link>
       </div>
 
@@ -40,12 +40,7 @@ const Navbar: React.FC = () => {
       <div className="flex items-center space-x-4">
         {isSignedIn ? (
           <>
-            <Link 
-              to="/dashboard" 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-sm"
-            >
-              Dashboard
-            </Link>
+
             <UserButton afterSignOutUrl="/signin" />
           </>
         ) : (

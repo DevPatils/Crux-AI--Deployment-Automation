@@ -8,6 +8,7 @@ import FileUpload from '../components/FileUpload';
 const CreatePortfolio: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
+  const [projectId, setProjectId] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
   const [compiledHtmlPreview, setCompiledHtmlPreview] = useState<string>('');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -68,6 +69,23 @@ const CreatePortfolio: React.FC = () => {
       return;
     }
 
+    // Validate project ID if provided
+    if (projectId.trim()) {
+      const sanitizedId = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      if (sanitizedId.length < 3) {
+        alert('Project ID must be at least 3 characters long when specified.');
+        return;
+      }
+      if (sanitizedId !== projectId.trim().toLowerCase()) {
+        const shouldContinue = confirm(
+          `Your project ID will be sanitized to: "${sanitizedId}"\n\nSpecial characters and spaces will be converted to hyphens. Continue?`
+        );
+        if (!shouldContinue) {
+          return;
+        }
+      }
+    }
+
     setIsUploading(true);
     try {
       const token = await getToken();
@@ -103,8 +121,9 @@ const CreatePortfolio: React.FC = () => {
         }
       }
       
-      // Generate a unique project name based on timestamp and template
-      const projectName = `portfolio-${selectedTemplate}-${Date.now()}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      // Generate project name - use custom projectId if provided, otherwise generate one
+      const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate}-${Date.now()}`;
+      const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
       formData.append('projectName', projectName);
 
       // Step 1: send resume + template to backend to extract and compile HTML
@@ -153,6 +172,7 @@ const CreatePortfolio: React.FC = () => {
       const deployResp = await api.post('/generate/deploy', {
         html: compiledHtml,
         projectName,
+        templateId: selectedTemplate,
       }, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -164,12 +184,20 @@ const CreatePortfolio: React.FC = () => {
         localStorage.removeItem('selectedTemplate');
 
         const deploymentUrl = deployResp.data.url || deployResp.data.deployment?.url || deployResp.data.deploymentUrl;
-        alert(`Portfolio created and deployed successfully!\n\nYour portfolio is live at:\n${deploymentUrl}\n\nRedirecting to dashboard...`);
+        const originalName = deployResp.data.originalName || projectName;
+        const finalName = deployResp.data.finalName || projectName;
+        
+        const message = originalName !== finalName 
+          ? `Portfolio created and deployed successfully!\n\nOriginal name: ${originalName}\nFinal URL: ${deploymentUrl}\n\n(crux-ai suffix added for branding)\n\nRedirecting to dashboard...`
+          : `Portfolio created and deployed successfully!\n\nYour portfolio is live at:\n${deploymentUrl}\n\nRedirecting to dashboard...`;
+          
+        alert(message);
 
         navigate('/dashboard', { 
           state: { 
             deploymentUrl,
-            projectName,
+            projectName: finalName,
+            originalName,
             templateId: selectedTemplate,
             deploymentId: deployResp.data.deploymentId || deployResp.data.deployment?.deploymentId
           } 
@@ -251,10 +279,39 @@ const CreatePortfolio: React.FC = () => {
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Upload Your Resume
+              Create Your Portfolio
             </h2>
             <p className="text-gray-600">
               Upload your resume in PDF format and our AI will transform it into a stunning portfolio using your selected template.
+            </p>
+          </div>
+
+          {/* Project ID Input */}
+          <div className="mb-6">
+            <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 mb-2">
+              Project ID (Optional)
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="projectId"
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                placeholder="Enter custom project name (e.g., my-awesome-portfolio)"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              />
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+            </div>
+            <p className="mt-2 text-sm text-gray-500">
+              {projectId.trim() ? (
+                <>Your portfolio will be deployed as: <span className="font-mono text-blue-600">{projectId.toLowerCase().replace(/[^a-z0-9-]/g, '-')}-crux-ai</span> <span className="text-gray-400">(crux-ai suffix added for branding)</span></>
+              ) : (
+                'Leave empty to auto-generate a project name with crux-ai suffix'
+              )}
             </p>
           </div>
 
@@ -291,7 +348,8 @@ const CreatePortfolio: React.FC = () => {
                     onClick={async () => {
                       if (!compiledHtmlPreview) { alert('No compiled HTML ready to deploy'); return; }
                       const token = await getToken();
-                      const projectName = `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                      const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`;
+                      const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
                       deployConfirmed(compiledHtmlPreview, projectName, token || '');
                     }}
                   >
@@ -318,7 +376,7 @@ const CreatePortfolio: React.FC = () => {
         </div>
 
         {/* Process Steps */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           <div className="text-center">
             <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
               <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -327,6 +385,20 @@ const CreatePortfolio: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">Template Selected</h3>
             <p className="text-sm text-gray-600">You've chosen the perfect template</p>
+          </div>
+
+          <div className={`text-center ${projectId.trim() ? 'opacity-100' : 'opacity-50'}`}>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
+              projectId.trim() ? 'bg-green-600' : 'bg-gray-300'
+            }`}>
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-1">Project ID</h3>
+            <p className="text-sm text-gray-600">
+              {projectId.trim() ? 'Custom ID set' : 'Optional custom name'}
+            </p>
           </div>
           
           <div className={`text-center ${selectedFile ? 'opacity-100' : 'opacity-50'}`}>

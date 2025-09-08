@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { SignedIn } from "@clerk/clerk-react";
 import Dashboard from "./components/Dashboard";
 import SignInPage from "./components/SignIn";
 import SignUpPage from "./components/SignUp";
@@ -24,19 +23,12 @@ function App() {
           <Route path="/templates" element={<Templates />} />
           <Route path="/create-portfolio" element={<CreatePortfolio />} />
 
-          {/* Placeholder pages */}
-          <Route path="/features" element={<div>Features Coming Soon</div>} />
-          <Route path="/contact" element={<div>Contact Coming Soon</div>} />
+          {/* Route remapping: keep old paths working */}
+          <Route path="/features" element={<Home />} />
+          <Route path="/contact" element={<Dashboard />} />
 
           {/* Protected */}
-          <Route
-            path="/dashboard"
-            element={
-              <SignedIn>
-                <Dashboard />
-              </SignedIn>
-            }
-          />
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
