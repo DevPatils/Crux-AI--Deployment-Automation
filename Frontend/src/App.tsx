@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Templates from "./pages/Templetes";
 import CreatePortfolio from "./pages/CreatePortfolio";
 import { ToastProvider } from "./components/ToastProvider";
+import { SignIn } from "@clerk/clerk-react";
 
 function App() {
   return (
@@ -18,22 +19,29 @@ function App() {
           <Navbar />
 
           <Routes>
-          {/* Public */}
-          <Route path="/" element={<Home />} />
-          <Route path="/signin" element={<SignInPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/templates" element={<Templates />} />
-          <Route path="/create-portfolio" element={<CreatePortfolio />} />
+            {/* Public */}
+            <Route path="/" element={<Home />} />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
 
-          {/* Route remapping: keep old paths working */}
-          <Route path="/features" element={<Home />} />
-          <Route path="/contact" element={<Dashboard />} />
+            {/* Clerk SSO callback handler */}
+            <Route
+              path="/sso-callback/*"
+              element={<SignIn routing="path" path="/sso-callback" afterSignInUrl="/dashboard" />}
+            />
 
-          {/* Protected */}
-          <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/create-portfolio" element={<CreatePortfolio />} />
 
-          {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Route remapping: keep old paths working */}
+            <Route path="/features" element={<Home />} />
+            <Route path="/contact" element={<Dashboard />} />
+
+            {/* Protected */}
+            <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Catch-all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ToastProvider>
       </UserSync>
