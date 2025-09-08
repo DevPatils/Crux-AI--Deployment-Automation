@@ -23,6 +23,9 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
 
+  // Log the API base URL being used
+  console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+
   const refreshProjects = async () => {
     setLoading(true);
     setError(null);
