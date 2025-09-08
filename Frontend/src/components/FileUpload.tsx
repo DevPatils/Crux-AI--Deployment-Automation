@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useToast } from './useToast';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -25,10 +26,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
 
   const handleFileSelect = (selectedFile: File) => {
     if (!isAuthenticated) {
-      alert('Please sign in to upload your resume.');
+      toast.push('Please sign in to upload your resume.', { type: 'warning' });
       return;
     }
     
@@ -36,7 +38,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       setFile(selectedFile);
       onFileSelect(selectedFile);
     } else {
-      alert('Please select a PDF file');
+      toast.push('Please select a PDF file', { type: 'error' });
     }
   };
 
@@ -68,7 +70,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleAvatarSelect = (selectedFile: File) => {
     if (!isAuthenticated) {
-      alert('Please sign in to upload your avatar.');
+      toast.push('Please sign in to upload your avatar.', { type: 'warning' });
       return;
     }
     
@@ -76,12 +78,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
     if (selectedFile && allowedTypes.includes(selectedFile.type)) {
       // Check file size (max 5MB)
       if (selectedFile.size > 5 * 1024 * 1024) {
-        alert('Avatar file size must be less than 5MB');
+        toast.push('Avatar file size must be less than 5MB', { type: 'error' });
         return;
       }
       setAvatar(selectedFile);
     } else {
-      alert('Please select a valid image file (JPEG, PNG, or WebP)');
+      toast.push('Please select a valid image file (JPEG, PNG, or WebP)', { type: 'error' });
     }
   };
 

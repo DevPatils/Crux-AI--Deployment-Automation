@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
+import { useToast } from '../components/useToast';
 import api from '../services/api';
-import Navbar from '../components/Navbar';
 import FileUpload from '../components/FileUpload';
 
 const CreatePortfolio: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
+  // ...existing code...
   const [projectId, setProjectId] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
   const [compiledHtmlPreview, setCompiledHtmlPreview] = useState<string>('');
@@ -16,6 +16,7 @@ const CreatePortfolio: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isSignedIn, getToken } = useAuth();
+  const toast = useToast();
 
   useEffect(() => {
     // Get template from URL search params, navigation state, or localStorage
@@ -59,12 +60,12 @@ const CreatePortfolio: React.FC = () => {
 
   const handleUpload = async (file: File, avatar?: File) => {
     if (!isSignedIn) {
-      alert('Please sign in to upload your resume.');
+      toast.push('Please sign in to upload your resume.', { type: 'warning' });
       return;
     }
 
     if (!selectedTemplate) {
-      alert('No template selected. Please go back and select a template.');
+      toast.push('No template selected. Please go back and select a template.', { type: 'warning' });
       navigate('/templates');
       return;
     }
@@ -73,16 +74,13 @@ const CreatePortfolio: React.FC = () => {
     if (projectId.trim()) {
       const sanitizedId = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
       if (sanitizedId.length < 3) {
-        alert('Project ID must be at least 3 characters long when specified.');
+        toast.push('Project ID must be at least 3 characters long when specified.', { type: 'error' });
         return;
       }
       if (sanitizedId !== projectId.trim().toLowerCase()) {
-        const shouldContinue = confirm(
-          `Your project ID will be sanitized to: "${sanitizedId}"\n\nSpecial characters and spaces will be converted to hyphens. Continue?`
-        );
-        if (!shouldContinue) {
-          return;
-        }
+        // Auto-apply sanitized ID and inform the user via toast (avoids native confirm popup)
+        setProjectId(sanitizedId);
+        toast.push(`Project ID sanitized to: ${sanitizedId}`, { type: 'info', duration: 5000 });
       }
     }
 
@@ -151,16 +149,21 @@ const CreatePortfolio: React.FC = () => {
 
       // Wait for user confirmation via modal (polling state change) - simplified: user will click confirm which calls deployConfirmed below
       // The modal's Confirm button triggers deployConfirmed(compiledHtml, projectName, token)
-    } catch (error) {
-      console.error('Portfolio generation error:', error);
-      // Prefer backend-provided message when available
-  // @ts-expect-error - error may be AxiosError with response structure
-  const backendMsg = error?.response?.data?.error || error?.response?.data?.details || error?.message;
-      const errorMessage = backendMsg || 'Portfolio generation failed. Please try again.';
-      alert(errorMessage);
-    } finally {
-      setIsUploading(false);
+  } catch (error: unknown) {
+    console.error('Portfolio generation error:', error);
+    // Prefer backend-provided message when available
+    let errorMessage = 'Portfolio generation failed. Please try again.';
+    if (typeof error === 'object' && error !== null) {
+      const errObj = error as { response?: { data?: { error?: string; details?: string } }; message?: string };
+      const backendMsg = errObj?.response?.data?.error || errObj?.response?.data?.details || errObj?.message;
+      if (backendMsg) {
+        errorMessage = backendMsg;
+      }
     }
+  toast.push(errorMessage, { type: 'error' });
+  } finally {
+    setIsUploading(false);
+  }
   };
 
   const deployConfirmed = async (compiledHtml: string, projectName: string, token: string) => {
@@ -189,7 +192,7 @@ const CreatePortfolio: React.FC = () => {
           ? `Portfolio created and deployed successfully!\n\nOriginal name: ${originalName}\nFinal URL: ${deploymentUrl}\n\n(crux-ai suffix added for branding)\n\nRedirecting to dashboard...`
           : `Portfolio created and deployed successfully!\n\nYour portfolio is live at:\n${deploymentUrl}\n\nRedirecting to dashboard...`;
           
-        alert(message);
+  toast.push(message, { type: 'success', duration: 8000 });
 
         navigate('/dashboard', { 
           state: { 
@@ -205,7 +208,7 @@ const CreatePortfolio: React.FC = () => {
       }
     } catch (err) {
       console.error('Deployment error:', err);
-      alert('Deployment failed. See console for details.');
+      toast.push('Deployment failed. See console for details.', { type: 'error' });
     } finally {
       setIsUploading(false);
     }
@@ -344,12 +347,12 @@ const CreatePortfolio: React.FC = () => {
                   <button 
                     className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
                     onClick={async () => {
-                      if (!compiledHtmlPreview) { alert('No compiled HTML ready to deploy'); return; }
-                      const token = await getToken();
-                      const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`;
-                      const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-                      deployConfirmed(compiledHtmlPreview, projectName, token || '');
-                    }}
+                        if (!compiledHtmlPreview) { toast.push('No compiled HTML ready to deploy', { type: 'error' }); return; }
+                        const token = await getToken();
+                        const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`;
+                        const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                        deployConfirmed(compiledHtmlPreview, projectName, token || '');
+                      }}
                   >
                     Confirm & Deploy
                   </button>

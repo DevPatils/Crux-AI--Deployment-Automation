@@ -7,15 +7,17 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Templates from "./pages/Templetes";
 import CreatePortfolio from "./pages/CreatePortfolio";
+import { ToastProvider } from "./components/ToastProvider";
 
 function App() {
   return (
     <Router>
       <UserSync>
-        {/* Global Navbar */}
-        <Navbar />
+        <ToastProvider>
+          {/* Global Navbar */}
+          <Navbar />
 
-        <Routes>
+          <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignInPage />} />
@@ -32,7 +34,8 @@ function App() {
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          </Routes>
+        </ToastProvider>
       </UserSync>
     </Router>
   );

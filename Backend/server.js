@@ -5,6 +5,7 @@ const { PrismaClient } = require("@prisma/client");
 const { setupClerk, authMiddleware } = require("./middleware/auth");
 const userRoutes = require("./routes/user");
 const generateRoutes = require("./routes/generate");
+const vercelRoutes = require("./routes/vercel");
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
-// GET /all-users - view all users in database (for testing, no auth required)
+
 app.get("/all-users", async (req, res) => {
   try {
     const users = await prisma.user.findMany({
@@ -38,7 +39,7 @@ app.get("/all-users", async (req, res) => {
   }
 });
 
-// Clerk Webhook: create user in DB on signup (no auth required)
+
 app.post("/clerk/webhook", async (req, res) => {
   const event = req.body;
   if (event.type === "user.created") {
@@ -60,68 +61,15 @@ app.post("/clerk/webhook", async (req, res) => {
   res.status(200).json({ received: true });
 });
 
-// Setup Clerk middleware for protected routes
+
 app.use(setupClerk);
 
-// Unprotected routes are mounted via routers (e.g., /generate)
-// Protected routes
+
 app.use("/users", userRoutes);
 app.use("/generate", generateRoutes);
+app.use("/vercel", vercelRoutes);
 
-// Protected route: get projects for the logged-in user
-app.get("/projects", authMiddleware, async (req, res) => {
-  try {
-    // Ensure user exists in DB
-    const user = await prisma.user.findUnique({
-      where: { clerkId: req.auth.userId },
-    });
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const projects = await prisma.project.findMany({
-      where: { userId: user.id },
-    });
-
-    res.json(projects);
-  } catch (err) {
-    console.error("DB Error:", err);
-    res.status(500).send("Database error");
-  }
-});
-
-// Protected route: create a new project
-app.post("/projects", authMiddleware, async (req, res) => {
-  const { title, prompt, contentJSON, deployedUrl } = req.body;
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { clerkId: req.auth.userId },
-    });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const project = await prisma.project.create({
-      data: {
-        title,
-        prompt,
-        contentJSON,
-        deployedUrl,
-        userId: user.id,
-      },
-    });
-
-    res.json(project);
-  } catch (err) {
-    console.error("DB Error:", err);
-    res.status(500).send("Database error");
-  }
-});
-
-// Health check
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });

@@ -2,6 +2,7 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useToast } from './useToast';
 
 interface Project {
   id: number;
@@ -20,13 +21,14 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   const refreshProjects = async () => {
     setLoading(true);
     setError(null);
     try {
       const token = await getToken();
-      const response = await api.get("/projects", {
+      const response = await api.get("/vercel/projects", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -35,7 +37,9 @@ export default function Dashboard() {
 
       if (response.status === 200) {
         const data: Project[] = response.data;
-        setProjects(data);
+        // sort by createdAt descending (newest first)
+        const sorted = data.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setProjects(sorted);
         setError(null);
       } else {
         throw new Error("Failed to fetch projects");
@@ -67,7 +71,7 @@ export default function Dashboard() {
         );
 
         // Then fetch projects
-        const response = await api.get("/projects", {
+        const response = await api.get("/vercel/projects", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -76,7 +80,9 @@ export default function Dashboard() {
 
         if (response.status === 200) {
           const data: Project[] = response.data;
-          setProjects(data);
+          // sort by createdAt descending (newest first)
+          const sorted = data.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          setProjects(sorted);
           setError(null);
         } else {
           throw new Error("Failed to fetch projects");
@@ -100,6 +106,26 @@ export default function Dashboard() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const deleteProject = async (projectId: number) => {
+    if (!confirm('Delete this project and its Vercel deployment? This cannot be undone.')) return;
+    try {
+      const token = await getToken();
+      const resp = await api.delete(`/vercel/projects/${projectId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (resp.data && resp.data.success) {
+        toast.push('Project deleted successfully', { type: 'success' });
+        // refresh the list
+        refreshProjects();
+      } else {
+        throw new Error(resp.data?.error || 'Deletion failed');
+      }
+    } catch (err) {
+      console.error('Deletion error:', err);
+      toast.push('Failed to delete project. See console for details.', { type: 'error' });
+    }
   };
 
   const getTemplateFromPrompt = (prompt: string) => {
@@ -389,7 +415,10 @@ export default function Dashboard() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                           </svg>
                         </button>
-                        <button className="text-gray-400 hover:text-red-600 transition-colors duration-200 p-2 hover:bg-red-50 rounded-lg">
+                        <button 
+                          onClick={() => deleteProject(project.id)} 
+                          className="text-gray-400 hover:text-red-600 transition-colors duration-200 p-2 hover:bg-red-50 rounded-lg"
+                        >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16" />
                           </svg>

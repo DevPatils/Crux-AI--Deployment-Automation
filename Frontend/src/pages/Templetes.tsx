@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
+import { useToast } from '../components/useToast';
 
 
 interface Template {
@@ -18,6 +19,7 @@ const Templates: React.FC = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
+  const toast = useToast();
 
   // Available templates - map to files in Frontend/public/templates
   const templates: Template[] = [
@@ -67,13 +69,13 @@ const Templates: React.FC = () => {
 
   const handleProceedWithTemplate = () => {
     if (!isSignedIn) {
-      alert('Please sign in to continue with template selection.');
+      toast.push('Please sign in to continue with template selection.', { type: 'warning' });
       navigate('/signin');
       return;
     }
 
     if (!selectedTemplate) {
-      alert('Please select a template first.');
+      toast.push('Please select a template first.', { type: 'warning' });
       return;
     }
 
@@ -89,7 +91,55 @@ const Templates: React.FC = () => {
       let html = await resp.text();
       
       // Add dummy data for preview
-      const dummyData: Record<string, any> = {
+      const dummyData: {
+        personalInfo: {
+          name: string;
+          title: string;
+          location: string;
+          email: string;
+          phone: string;
+          summary: string;
+          linkedin: string;
+          github: string;
+          portfolio: string;
+        };
+        experience: Array<{
+          role: string;
+          company: string;
+          location: string;
+          duration: string;
+          description: string;
+          achievements: string[];
+        }>;
+        projects: Array<{
+          name: string;
+          description: string;
+          technologies: string[];
+          features: string[];
+          link: string;
+        }>;
+        achievements: Array<{
+          title: string;
+          description: string;
+          date: string;
+          organization: string;
+        }>;
+        skills: {
+          technical: string[];
+          frameworks: string[];
+          databases: string[];
+          tools: string[];
+          languages: string[];
+        };
+        education: Array<{
+          degree: string;
+          institution: string;
+          duration: string;
+          gpa?: string;
+          description: string;
+          coursework?: string[];
+        }>;
+      } = {
         personalInfo: {
           name: "John Developer",
           title: "Full Stack Developer",
@@ -211,7 +261,7 @@ const Templates: React.FC = () => {
       };
 
       // Replace handlebars placeholders with dummy data for preview
-      Object.keys(dummyData).forEach(key => {
+      (Object.keys(dummyData) as Array<keyof typeof dummyData>).forEach(key => {
         const value = dummyData[key];
         if (Array.isArray(value)) {
           // Handle arrays like experience, projects, etc.
@@ -224,13 +274,20 @@ const Templates: React.FC = () => {
           Object.keys(value).forEach(subKey => {
             const regex = new RegExp(`{{#if ${key}\\.${subKey}}}([\\s\\S]*?){{/if}}`, 'g');
             html = html.replace(regex, '$1');
-            html = html.replace(new RegExp(`{{${key}\\.${subKey}}}`, 'g'), value[subKey]);
+            html = html.replace(new RegExp(`{{${key}\\.${subKey}}}`, 'g'), (value as Record<string, string>)[subKey]);
           });
         }
       });
 
       // Handle nested arrays and objects
-      dummyData.experience?.forEach((exp: any) => {
+      dummyData.experience?.forEach((exp: {
+        role: string;
+        company: string;
+        location: string;
+        duration: string;
+        description: string;
+        achievements: string[];
+      }) => {
         if (exp.achievements) {
           exp.achievements.forEach((achievement: string) => {
             html = html.replace('{{this}}', achievement);
@@ -238,7 +295,13 @@ const Templates: React.FC = () => {
         }
       });
 
-      dummyData.projects?.forEach((project: any) => {
+      dummyData.projects?.forEach((project: {
+        name: string;
+        description: string;
+        technologies: string[];
+        features: string[];
+        link: string;
+      }) => {
         if (project.technologies) {
           project.technologies.forEach((tech: string) => {
             html = html.replace('{{this}}', tech);
@@ -251,7 +314,14 @@ const Templates: React.FC = () => {
         }
       });
 
-      dummyData.education?.forEach((edu: any) => {
+      dummyData.education?.forEach((edu: {
+        degree: string;
+        institution: string;
+        duration: string;
+        gpa?: string;
+        description: string;
+        coursework?: string[];
+      }) => {
         if (edu.coursework) {
           edu.coursework.forEach((course: string) => {
             html = html.replace('{{this}}', course);
@@ -270,7 +340,7 @@ const Templates: React.FC = () => {
       setIsPreviewOpen(true);
     } catch (err) {
       console.error('Preview load error:', err);
-      alert('Failed to load template preview.');
+      toast.push('Failed to load template preview.', { type: 'error' });
     }
   };
 
