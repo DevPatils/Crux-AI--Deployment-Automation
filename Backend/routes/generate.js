@@ -12,7 +12,13 @@ const axios = require("axios");
 const prisma = new PrismaClient();
 
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ 
+  dest: "uploads/",
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fieldSize: 10 * 1024 * 1024  // 10MB for text fields
+  }
+});
 
 // Test endpoint for authentication and database saving
 genrouter.post("/test-auth", authMiddleware, async (req, res) => {
