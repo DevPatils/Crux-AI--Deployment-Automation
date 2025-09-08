@@ -3,13 +3,61 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const handlebars = require("handlebars");
 const fs = require("fs");
 const path = require("path");
+const { PrismaClient } = require("@prisma/client");
+const { authMiddleware } = require("../middleware/auth");
 
 const genrouter = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const axios = require("axios");
+const prisma = new PrismaClient();
 
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
+
+// Test endpoint for authentication and database saving
+genrouter.post("/test-auth", authMiddleware, async (req, res) => {
+  try {
+    const clerkUserId = req.userId;
+    console.log('Test auth - clerkUserId:', clerkUserId);
+
+    if (!clerkUserId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    // Find the user in our database using clerkId
+    const user = await prisma.user.findUnique({
+      where: { clerkId: clerkUserId }
+    });
+
+    if (!user) {
+      console.error('User not found in database with clerkId:', clerkUserId);
+      return res.status(404).json({ error: "User not found in database" });
+    }
+
+    // Create a test project
+    const project = await prisma.project.create({
+      data: {
+        title: `Test Project ${Date.now()}`,
+        prompt: 'Test prompt',
+        contentJSON: { test: 'data' },
+        deployedUrl: 'https://test.example.com',
+        userId: user.id
+      }
+    });
+
+    console.log('Test project created:', project.id);
+
+    res.json({
+      success: true,
+      message: "Authentication and database saving working",
+      user: { id: user.id, clerkId: user.clerkId, email: user.email },
+      project: project
+    });
+  } catch (error) {
+    console.error('Test auth error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Get available templates
 genrouter.get("/templates", async (req, res) => {
@@ -47,12 +95,21 @@ genrouter.get("/templates", async (req, res) => {
 });
 
 
-genrouter.post("/deploy", async (req, res) => {
+genrouter.post("/deploy", authMiddleware, async (req, res) => {
   try {
-    const { html, projectName } = req.body;
+    const { html, projectName, templateId } = req.body;
+    const clerkUserId = req.userId; // from auth middleware
+
+    console.log('Deploy request - clerkUserId:', clerkUserId);
+    console.log('Deploy request - projectName:', projectName);
+    console.log('Deploy request - templateId:', templateId);
 
     if (!html || !projectName) {
       return res.status(400).json({ error: "Missing html or projectName" });
+    }
+
+    if (!clerkUserId) {
+      return res.status(401).json({ error: "User not authenticated" });
     }
 
     // Basic validation to avoid deploying empty boilerplates
@@ -78,29 +135,51 @@ genrouter.post("/deploy", async (req, res) => {
       headers["X-Vercel-Team-Id"] = teamId;
     }
 
+    // Validate project name format for Vercel and add crux-ai suffix to avoid conflicts
+    let baseProjectName = projectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    
+    // Add "crux-ai" suffix for branding and to avoid conflicts
+    const suffix = 'crux-ai';
+    const validProjectName = `${baseProjectName}-${suffix}`;
+    
+    console.log(`Project name: "${projectName}" -> "${validProjectName}" (added suffix: ${suffix})`);
+
+    // Ensure project name meets Vercel requirements
+    if (validProjectName.length < 1 || validProjectName.length > 100) {
+      return res.status(400).json({ error: "Project name must be between 1 and 100 characters" });
+    }
+
+    if (validProjectName.startsWith('-') || validProjectName.endsWith('-')) {
+      return res.status(400).json({ error: "Project name cannot start or end with a hyphen" });
+    }
+
     // Create project if it doesn't exist
     try {
-      await axios.post(
+      const createProjectResponse = await axios.post(
         "https://api.vercel.com/v9/projects",
         {
-          name: projectName,
+          name: validProjectName,
           framework: null, // No framework, plain HTML
         },
         { headers }
       );
-      console.log("Project created:", projectName);
+      console.log("Project created:", validProjectName, createProjectResponse.data?.id);
     } catch (err) {
       if (err.response?.status === 409) {
         // Project already exists
-        console.log("Project already exists:", projectName);
+        console.log("Project already exists:", validProjectName);
       } else {
-        throw err;
+        console.error("Project creation error:", err.response?.data || err.message);
+        return res.status(500).json({ 
+          error: "Failed to create project on Vercel", 
+          details: err.response?.data?.error?.message || err.message 
+        });
       }
     }
 
     // Deploy HTML to the project
     const deployPayload = {
-      name: projectName,
+      name: validProjectName,
       files: [
         {
           file: "index.html",
@@ -108,18 +187,79 @@ genrouter.post("/deploy", async (req, res) => {
         },
       ],
       target: "production",
+      projectSettings: {
+        framework: null
+      }
     };
 
-    const deployRes = await axios.post(
-      "https://api.vercel.com/v13/deployments",
-      deployPayload,
-      { headers }
-    );
+    console.log('Deploying with payload:', {
+      name: validProjectName,
+      filesCount: deployPayload.files.length,
+      target: deployPayload.target
+    });
+
+    let deployRes;
+    try {
+      deployRes = await axios.post(
+        "https://api.vercel.com/v13/deployments",
+        deployPayload,
+        { headers }
+      );
+    } catch (deployErr) {
+      console.error('Vercel deployment error:', deployErr.response?.data || deployErr.message);
+      return res.status(500).json({ 
+        error: "Failed to deploy to Vercel", 
+        details: deployErr.response?.data?.error?.message || deployErr.message 
+      });
+    }
+
+    console.log('Vercel deployment response:', {
+      url: deployRes.data.url,
+      ready: deployRes.data.ready,
+      state: deployRes.data.state,
+      id: deployRes.data.id
+    });
+
+    // Use the project name to create the predictable URL format: projectName.vercel.app
+    const deployedUrl = `https://${validProjectName}.vercel.app`;
+
+    // Save to database - find user by clerkId first
+    try {
+      // Find the user in our database using clerkId
+      const user = await prisma.user.findUnique({
+        where: { clerkId: clerkUserId }
+      });
+
+      if (!user) {
+        console.error('User not found in database with clerkId:', clerkUserId);
+        return res.status(404).json({ error: "User not found in database" });
+      }
+
+      const project = await prisma.project.create({
+        data: {
+          title: `${projectName} (${validProjectName})`, // Show both original and final name
+          prompt: `Portfolio (${templateId || 'default'})`,
+          contentJSON: { 
+            originalName: projectName,
+            finalName: validProjectName,
+            suffix: suffix 
+          },
+          deployedUrl: deployedUrl,
+          userId: user.id // Use internal user ID
+        }
+      });
+      console.log('Project saved to database:', project.id);
+    } catch (dbErr) {
+      console.error('Database save error:', dbErr);
+      return res.status(500).json({ error: "Failed to save project to database" });
+    }
 
     res.json({
       success: true,
-      message: "Portfolio deployed successfully",
-      url: `https://${deployRes.data.url}`,
+      message: "Portfolio deployed and saved successfully",
+      url: deployedUrl,
+      originalName: projectName,
+      finalName: validProjectName,
       deploymentId: deployRes.data.id,
       details: deployRes.data,
     });
