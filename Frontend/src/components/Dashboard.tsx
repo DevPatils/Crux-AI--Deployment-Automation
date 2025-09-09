@@ -139,50 +139,50 @@ export default function Dashboard() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="w-full max-w-6xl px-6 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 sm:px-6">
+        <div className="w-full max-w-6xl py-8 sm:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
             <div className="order-2 lg:order-1">
-              <div className="bg-white/90 backdrop-blur-sm border border-gray-200/60 rounded-2xl p-8 shadow-lg">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight mb-4">
+              <div className="bg-white/90 backdrop-blur-sm border border-gray-200/60 rounded-2xl p-6 sm:p-8 shadow-lg">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight mb-4">
                   Welcome to CRUX AI — your portfolio companion
                 </h1>
-                <p className="text-gray-600 text-lg mb-6">
+                <p className="text-gray-600 text-base sm:text-lg mb-6">
                   Create, manage, and deploy beautiful portfolios in minutes. To access your dashboard and saved projects, please sign up or sign in.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3">
                   <button
                     onClick={() => navigate('/signup')}
-                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md"
+                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md text-center"
                   >
                     Create an account
                   </button>
 
                   <button
                     onClick={() => navigate('/signin')}
-                    className="w-full sm:w-auto px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium"
+                    className="w-full sm:w-auto px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium text-center"
                   >
                     Sign in
                   </button>
 
                   <button
                     onClick={() => navigate('/templates')}
-                    className="w-full sm:w-auto px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium"
+                    className="w-full sm:w-auto px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium text-center"
                   >
                     Explore templates
                   </button>
                 </div>
 
-                <p className="text-sm text-gray-500 mt-6">No credit card required • Improve your online presence instantly</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-6 text-center sm:text-left">No credit card required • Improve your online presence instantly</p>
               </div>
             </div>
 
             <div className="order-1 lg:order-2 flex items-center justify-center">
               <div className="w-full max-w-md">
-                <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-xl border border-gray-100">
+                <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-100">
                   {/* Decorative illustration */}
-                  <svg viewBox="0 0 600 400" className="w-full h-64" xmlns="http://www.w3.org/2000/svg" fill="none">
+                  <svg viewBox="0 0 600 400" className="w-full h-48 sm:h-64" xmlns="http://www.w3.org/2000/svg" fill="none">
                     <rect x="0" y="0" width="600" height="400" rx="24" fill="#eef2ff" />
                     <g transform="translate(40,30)">
                       <rect x="0" y="0" width="220" height="120" rx="12" fill="#fff" stroke="#e6e9f2" />
@@ -210,28 +210,28 @@ export default function Dashboard() {
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center py-8 gap-4 sm:gap-0">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-6 sm:py-8 gap-4 sm:gap-0">
+            <div className="flex items-start sm:items-center space-x-3 sm:space-x-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
                   Welcome back, {user?.firstName || "User"}!
                 </h1>
-                <p className="text-gray-600 mt-1 text-lg">
+                <p className="text-gray-600 mt-1 text-sm sm:text-base lg:text-lg">
                   Manage and showcase your portfolio projects
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center w-full sm:w-auto">
               <button
                 onClick={() => navigate('/templates')}
-                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2 font-medium"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 font-medium text-sm sm:text-base"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 <span>Create New Portfolio</span>
@@ -244,47 +244,47 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-6 md:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 lg:mb-10">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-4 sm:p-6 lg:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300">
             <div className="flex items-center">
-              <div className="p-4 bg-blue-500 rounded-2xl shadow">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 sm:p-4 bg-blue-500 rounded-2xl shadow flex-shrink-0">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Projects</p>
-                <p className="text-4xl font-bold text-gray-900 mt-1">{projects.length}</p>
+              <div className="ml-4 sm:ml-6 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Projects</p>
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-1">{projects.length}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-6 md:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-4 sm:p-6 lg:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300">
             <div className="flex items-center">
-              <div className="p-4 bg-green-500 rounded-2xl shadow">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 sm:p-4 bg-green-500 rounded-2xl shadow flex-shrink-0">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l5 5L20 7" />
                 </svg>
               </div>
-              <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Live Deployments</p>
-                <p className="text-4xl font-bold text-gray-900 mt-1">
+              <div className="ml-4 sm:ml-6 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Live Deployments</p>
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-1">
                   {projects.filter(p => p.deployedUrl).length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-6 md:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-4 sm:p-6 lg:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center">
-              <div className="p-4 bg-purple-500 rounded-2xl shadow">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-3 sm:p-4 bg-purple-500 rounded-2xl shadow flex-shrink-0">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">This Month</p>
-                <p className="text-4xl font-bold text-gray-900 mt-1">
+              <div className="ml-4 sm:ml-6 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">This Month</p>
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-1">
                   {projects.filter(p => {
                     const projectDate = new Date(p.createdAt);
                     const now = new Date();

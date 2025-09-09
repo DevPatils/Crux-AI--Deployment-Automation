@@ -155,13 +155,11 @@
       width: 140px;
       height: 140px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
-      background-size: 200% 200%;
-      animation: avatarGradient 4s ease-in-out infinite;
+      background: #f8fafc;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: var(--text-primary);
       font-weight: 800;
       font-size: 3rem;
       margin: 0 auto;
@@ -182,11 +180,6 @@
       display: block;
     }
 
-    @keyframes avatarGradient {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
     .avatar::before {
       content: '';
       position: absolute;
@@ -194,21 +187,15 @@
       left: -5px;
       right: -5px;
       bottom: -5px;
-      background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+      background: rgba(99, 102, 241, 0.2);
       border-radius: 50%;
       z-index: -1;
-      animation: spin 8s linear infinite;
       opacity: 0;
       transition: opacity 0.4s ease;
     }
 
     .avatar:hover::before {
-      opacity: 0.7;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      opacity: 0.3;
     }
 
     .avatar:hover {
@@ -1180,16 +1167,6 @@
         particle.style.transform = `translateY(${parallax * speed}px)`;
       });
     });
-
-    // Add dynamic color changing to avatar
-    let hue = 0;
-    setInterval(() => {
-      hue = (hue + 1) % 360;
-      const avatar = document.querySelector('.avatar');
-      if (avatar) {
-        avatar.style.filter = `hue-rotate(${hue}deg)`;
-      }
-    }, 100);
 
     // Add typing effect to name (if no actual name is present)
     const nameElement = document.querySelector('.name');

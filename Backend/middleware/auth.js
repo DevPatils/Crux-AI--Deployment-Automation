@@ -15,4 +15,6 @@ const authMiddleware = [requireAuth({
   next();
 }];
 
+
+
 module.exports = { setupClerk, authMiddleware };

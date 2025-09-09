@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useToast } from '../components/useToast';
@@ -20,6 +20,7 @@ const Templates: React.FC = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
   const toast = useToast();
+  const continueButtonRef = useRef<HTMLDivElement>(null);
 
   // Available templates - map to files in Frontend/public/templates
   const templates: Template[] = [
@@ -65,6 +66,17 @@ const Templates: React.FC = () => {
     } catch (err) {
       console.warn('Failed to fetch template HTML on select', err);
     }
+
+    // Smooth scroll to continue button after a short delay to ensure state update
+    setTimeout(() => {
+      if (continueButtonRef.current) {
+        continueButtonRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }, 100);
   };
 
   const handleProceedWithTemplate = () => {
@@ -346,14 +358,13 @@ const Templates: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-  
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">
             Choose Your Template
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             Select from our professionally designed templates to create your perfect portfolio. 
             Each template is fully customizable and responsive.
           </p>
@@ -363,25 +374,25 @@ const Templates: React.FC = () => {
         {isPreviewOpen && previewHtml && (
           <div className="fixed inset-0 z-50 bg-white overflow-hidden">
             {/* Full screen header bar */}
-            <div className="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-4 py-2 h-12">
+            <div className="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-2 sm:px-4 py-2 h-12 sm:h-14">
               <div className="flex items-center space-x-2">
                 <div className="flex space-x-1">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
                 </div>
-                <span className="text-sm text-gray-600 ml-4">Portfolio Preview</span>
+                <span className="text-xs sm:text-sm text-gray-600 ml-2 sm:ml-4">Portfolio Preview</span>
               </div>
               <button
                 onClick={() => { setIsPreviewOpen(false); setPreviewHtml(null); }}
-                className="text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200"
+                className="text-gray-500 hover:text-gray-700 text-lg sm:text-xl font-bold w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded hover:bg-gray-200"
               >
                 ×
               </button>
             </div>
             
             {/* Full screen content */}
-            <div className="w-full h-[calc(100vh-3rem)] overflow-auto bg-white">
+            <div className="w-full h-[calc(100vh-3rem)] sm:h-[calc(100vh-3.5rem)] overflow-auto bg-white">
               <iframe
                 srcDoc={previewHtml}
                 className="w-full h-full border-0"
@@ -397,7 +408,7 @@ const Templates: React.FC = () => {
         )}
 
         {/* Templates Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10 lg:mb-12">
           {templates.map((template) => (
             <div
               key={template.id}
@@ -409,20 +420,20 @@ const Templates: React.FC = () => {
               onClick={() => handleTemplateSelect(template.id)}
             >
               {/* Template Preview */}
-              <div className="relative h-64 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+              <div className="relative h-48 sm:h-56 lg:h-64 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-500">Preview Available</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Preview Available</p>
                 </div>
                 
                 {selectedTemplate === template.id && (
-                  <div className="absolute top-3 right-3">
-                    <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
@@ -431,20 +442,20 @@ const Templates: React.FC = () => {
               </div>
 
               {/* Template Info */}
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-gray-900">{template.name}</h3>
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-1 sm:gap-0">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{template.name}</h3>
                   <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
                     {template.category}
                   </span>
                 </div>
                 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                <p className="text-gray-600 text-sm mb-3 sm:mb-4 line-clamp-3">
                   {template.description}
                 </p>
 
                 {/* Features */}
-                <div className="mb-4">
+                <div className="mb-3 sm:mb-4">
                   <h4 className="text-sm font-semibold text-gray-900 mb-2">Key Features:</h4>
                   <div className="flex flex-wrap gap-1">
                     {template.features.slice(0, 4).map((feature, index) => (
@@ -461,13 +472,13 @@ const Templates: React.FC = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handlePreviewTemplate(template.id);
                     }}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300"
+                    className="w-full sm:flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300"
                   >
                     Preview
                   </button>
@@ -476,7 +487,7 @@ const Templates: React.FC = () => {
                       e.stopPropagation();
                       handleTemplateSelect(template.id);
                     }}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
+                    className={`w-full sm:flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
                       selectedTemplate === template.id
                         ? 'bg-blue-600 text-white'
                         : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
@@ -491,20 +502,20 @@ const Templates: React.FC = () => {
 
           {/* Coming Soon Templates */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-dashed border-gray-300">
-            <div className="h-64 bg-gray-50 flex items-center justify-center">
+            <div className="h-48 sm:h-56 lg:h-64 bg-gray-50 flex items-center justify-center">
               <div className="text-center">
-                <div className="w-16 h-16 bg-gray-300 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-300 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                 </div>
-                <p className="text-sm text-gray-500">More Templates</p>
+                <p className="text-xs sm:text-sm text-gray-500">More Templates</p>
                 <p className="text-xs text-gray-400">Coming Soon</p>
               </div>
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">Creative & Minimal</h3>
-              <p className="text-gray-400 text-sm mb-4">
+            <div className="p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-400 mb-2">Creative & Minimal</h3>
+              <p className="text-gray-400 text-sm mb-3 sm:mb-4">
                 More exciting templates are in development. Stay tuned for creative, minimal, and industry-specific designs.
               </p>
               <button
@@ -519,14 +530,14 @@ const Templates: React.FC = () => {
 
         {/* Continue Button */}
         {selectedTemplate && (
-          <div className="text-center">
+          <div ref={continueButtonRef} className="text-center px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <button
               onClick={handleProceedWithTemplate}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors duration-300 shadow-lg hover:shadow-xl"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold text-base sm:text-lg transition-colors duration-300 shadow-lg hover:shadow-xl"
             >
               Continue with Selected Template
             </button>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-xs sm:text-sm text-gray-500 mt-2">
               Next: Upload your resume to generate your portfolio
             </p>
           </div>

@@ -113,11 +113,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className={`w-full max-w-xl mx-auto ${className}`}>
       <div className="relative">
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-lg">
           
           {/* Upload Area */}
           <div
-            className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
+            className={`relative border-2 border-dashed rounded-lg p-4 sm:p-6 lg:p-8 text-center transition-all duration-300 ${
               !isAuthenticated
                 ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
                 : isDragging
@@ -140,31 +140,31 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
             {!isAuthenticated ? (
               // Not authenticated - show sign-in prompt
-              <div className="space-y-4">
-                <div className="w-12 h-12 bg-gray-400 rounded-lg flex items-center justify-center mx-auto shadow-sm">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-400 rounded-lg flex items-center justify-center mx-auto shadow-sm">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-lg font-semibold text-gray-600 mb-2">
+                  <p className="text-base sm:text-lg font-semibold text-gray-600 mb-2">
                     Please sign in to upload
                   </p>
-                  <div className="space-y-2">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:space-y-0 justify-center">
                     <Link
                       to="/signin"
-                      className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 mr-2"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 text-center text-sm sm:text-base"
                     >
                       Sign In
                     </Link>
                     <Link
                       to="/signup"
-                      className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-300 border border-gray-300"
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors duration-300 border border-gray-300 text-center text-sm sm:text-base"
                     >
                       Sign Up
                     </Link>
                   </div>
-                  <p className="text-gray-500 text-xs mt-3">
+                  <p className="text-gray-500 text-xs sm:text-sm mt-3">
                     Create an account to start building your portfolio
                   </p>
                 </div>
