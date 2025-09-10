@@ -13,6 +13,12 @@ const CreatePortfolio: React.FC = () => {
   const [compiledHtmlPreview, setCompiledHtmlPreview] = useState<string>('');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [isReadyToDeploy, setIsReadyToDeploy] = useState(false);
+  const [deploymentData, setDeploymentData] = useState<{
+    compiledHtml: string;
+    projectName: string;
+    token: string;
+  } | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { isSignedIn, getToken } = useAuth();
@@ -143,9 +149,23 @@ const CreatePortfolio: React.FC = () => {
         throw new Error('Compiled HTML appears empty or invalid. Aborting deployment.');
       }
 
-  // Show preview and ask user to confirm deployment
-  setCompiledHtmlPreview(compiledHtml || '');
-  setIsPreviewOpen(true);
+      // Store deployment data and show deploy button
+      const deployProjectName = projectId.trim() || `portfolio-${selectedTemplate}-${Date.now()}`;
+      const finalProjectName = deployProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const authToken = await getToken();
+      
+      setDeploymentData({
+        compiledHtml,
+        projectName: finalProjectName,
+        token: authToken || ''
+      });
+      setIsReadyToDeploy(true);
+
+      // Also show preview
+      setCompiledHtmlPreview(compiledHtml || '');
+      setIsPreviewOpen(true);
+
+      toast.push('Portfolio generated successfully! You can now preview and deploy it.', { type: 'success' });
 
       // Wait for user confirmation via modal (polling state change) - simplified: user will click confirm which calls deployConfirmed below
       // The modal's Confirm button triggers deployConfirmed(compiledHtml, projectName, token)
@@ -181,8 +201,11 @@ const CreatePortfolio: React.FC = () => {
       });
 
       if (deployResp.data && deployResp.data.success) {
-        // Clear the stored template
+        // Clear the stored template and reset states
         localStorage.removeItem('selectedTemplate');
+        setIsReadyToDeploy(false);
+        setDeploymentData(null);
+        setCompiledHtmlPreview('');
 
         const deploymentUrl = deployResp.data.url || deployResp.data.deployment?.url || deployResp.data.deploymentUrl;
         const originalName = deployResp.data.originalName || projectName;
@@ -192,7 +215,7 @@ const CreatePortfolio: React.FC = () => {
           ? `Portfolio created and deployed successfully!\n\nOriginal name: ${originalName}\nFinal URL: ${deploymentUrl}\n\n(crux-ai suffix added for branding)\n\nRedirecting to dashboard...`
           : `Portfolio created and deployed successfully!\n\nYour portfolio is live at:\n${deploymentUrl}\n\nRedirecting to dashboard...`;
           
-  toast.push(message, { type: 'success', duration: 8000 });
+        toast.push(message, { type: 'success', duration: 8000 });
 
         navigate('/dashboard', { 
           state: { 
@@ -324,6 +347,52 @@ const CreatePortfolio: React.FC = () => {
             showAvatarUpload={selectedTemplate === 'modern-professional'}
             templateName={getTemplateName(selectedTemplate)}
           />
+
+          {/* Deploy Actions - Show after successful upload */}
+          {isReadyToDeploy && deploymentData && (
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-800">Portfolio Ready!</h3>
+                    <p className="text-sm text-green-600">Your portfolio has been generated and is ready to deploy.</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setIsPreviewOpen(true)}
+                    className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => deployConfirmed(deploymentData.compiledHtml, deploymentData.projectName, deploymentData.token)}
+                    disabled={isUploading}
+                    className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Deploying...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Deploy Portfolio
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Compiled HTML Preview Modal */}
           {isPreviewOpen && compiledHtmlPreview && (
             <div className="fixed inset-0 z-50 bg-white overflow-hidden">
@@ -416,21 +485,25 @@ const CreatePortfolio: React.FC = () => {
             </p>
           </div>
           
-          <div className={`text-center ${isUploading ? 'opacity-100' : 'opacity-50'}`}>
+          <div className={`text-center ${isReadyToDeploy ? 'opacity-100' : isUploading ? 'opacity-100' : 'opacity-50'}`}>
             <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
-              isUploading ? 'bg-blue-600' : 'bg-gray-300'
+              isReadyToDeploy ? 'bg-green-600' : isUploading ? 'bg-blue-600' : 'bg-gray-300'
             }`}>
               {isUploading ? (
                 <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : isReadyToDeploy ? (
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
               ) : (
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                 </svg>
               )}
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Generate Portfolio</h3>
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Generate & Deploy</h3>
             <p className="text-xs sm:text-sm text-gray-600">
-              {isUploading ? 'Creating your portfolio...' : 'AI-powered portfolio generation'}
+              {isReadyToDeploy ? 'Ready to deploy!' : isUploading ? 'Creating your portfolio...' : 'AI-powered portfolio generation'}
             </p>
           </div>
         </div>
