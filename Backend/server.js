@@ -43,7 +43,16 @@ const corsOptions = {
     'Origin', 
     'X-Requested-With',
     'Access-Control-Request-Method',
-    'Access-Control-Request-Headers'
+    'Access-Control-Request-Headers',
+    'Cache-Control',
+    'Pragma',
+    'User-Agent',
+    'Referer'
+  ],
+  exposedHeaders: [
+    'Content-Length',
+    'Content-Type',
+    'Authorization'
   ],
   optionsSuccessStatus: 200,
   preflightContinue: false
@@ -51,9 +60,18 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Debug middleware to log all requests
+// Debug middleware to log all requests with mobile detection
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'}`);
+  const userAgent = req.headers['user-agent'] || '';
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'} - Mobile: ${isMobile}`);
+  
+  // Add mobile-specific headers
+  if (isMobile) {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  
   next();
 });
 

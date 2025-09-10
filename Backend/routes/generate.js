@@ -538,41 +538,60 @@ Resume Text: ${text}`
   }
 });
 
-// Handle OPTIONS request for upload-resume route
+// Enhanced OPTIONS request handler for upload-resume route
 genrouter.options("/upload-resume", (req, res) => {
   const allowedOrigins = [
     'https://www.crux-ai.me',
     'https://crux-ai.me',
     'https://crux-ai-deployment-automation.onrender.com',
     'http://localhost:5173',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://localhost:5174'
   ];
   
   const origin = req.headers.origin;
+  console.log('OPTIONS request from origin:', origin);
+  
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   }
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
+  res.header('Access-Control-Max-Age', '86400'); // Cache preflight for 24 hours
+  res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.header('Pragma', 'no-cache');
+  res.header('Expires', '0');
   res.sendStatus(200);
 });
 
 genrouter.post("/upload-resume", upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'avatar', maxCount: 1 }]), async (req, res) => {
-  // Set specific CORS headers for this route
+  // Enhanced CORS headers for mobile compatibility
   const allowedOrigins = [
     'https://www.crux-ai.me',
     'https://crux-ai.me',
     'https://crux-ai-deployment-automation.onrender.com',
     'http://localhost:5173',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://localhost:5174'
   ];
   
   const origin = req.headers.origin;
+  console.log('Upload request from origin:', origin);
+  console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+  
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   }
   res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
+  res.header('Access-Control-Expose-Headers', 'Content-Length, Content-Type, Authorization');
+  
+  // Add cache headers to prevent mobile browser caching issues
+  res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.header('Pragma', 'no-cache');
+  res.header('Expires', '0');
   
   try {
     const files = req.files;
