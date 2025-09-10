@@ -60,7 +60,6 @@ app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
-
 app.get("/all-users", async (req, res) => {
   try {
     const users = await prisma.user.findMany({
