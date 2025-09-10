@@ -19,10 +19,80 @@ const CreatePortfolio: React.FC = () => {
     projectName: string;
     token: string;
   } | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const navigate = useNavigate();
   const location = useLocation();
   const { isSignedIn, getToken } = useAuth();
   const toast = useToast();
+
+  // Network status monitoring
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.push('🌐 Internet connection restored!', { type: 'success', duration: 5000 });
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.push('⚠️ No internet connection detected. Please check your network and try again.', { type: 'error', duration: 10000 });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Initial connection check
+    if (!navigator.onLine) {
+      toast.push('⚠️ No internet connection detected. Features may not work properly.', { type: 'warning', duration: 8000 });
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [toast]);
+
+  // Periodic connectivity check
+  useEffect(() => {
+    if (!isSignedIn) return;
+
+    // Test actual API connectivity
+    const testApiConnectivity = async () => {
+      try {
+        const token = await getToken();
+        const response = await api.get('/generate/templates', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          timeout: 5000, // 5 second timeout
+        });
+        return response.status === 200;
+      } catch (error) {
+        console.warn('API connectivity test failed:', error);
+        return false;
+      }
+    };
+
+    const checkConnectivity = async () => {
+      if (navigator.onLine) {
+        const apiReachable = await testApiConnectivity();
+        if (!apiReachable && isOnline) {
+          setIsOnline(false);
+          toast.push('⚠️ Server unreachable. API services may be temporarily unavailable.', { type: 'warning', duration: 8000 });
+        } else if (apiReachable && !isOnline) {
+          setIsOnline(true);
+          toast.push('✅ Server connection restored!', { type: 'success', duration: 5000 });
+        }
+      }
+    };
+
+    // Check connectivity every 30 seconds
+    const interval = setInterval(checkConnectivity, 30000);
+    
+    // Initial check after 2 seconds
+    setTimeout(checkConnectivity, 2000);
+
+    return () => clearInterval(interval);
+  }, [isSignedIn, getToken, isOnline, toast]);
 
   useEffect(() => {
     // Get template from URL search params, navigation state, or localStorage
@@ -65,6 +135,12 @@ const CreatePortfolio: React.FC = () => {
   };
 
   const handleUpload = async (file: File, avatar?: File) => {
+    // Check network connectivity first
+    if (!isOnline || !navigator.onLine) {
+      toast.push('❌ No internet connection. Please check your network and try again.', { type: 'error', duration: 8000 });
+      return;
+    }
+
     if (!isSignedIn) {
       toast.push('Please sign in to upload your resume.', { type: 'warning' });
       return;
@@ -171,22 +247,123 @@ const CreatePortfolio: React.FC = () => {
       // The modal's Confirm button triggers deployConfirmed(compiledHtml, projectName, token)
   } catch (error: unknown) {
     console.error('Portfolio generation error:', error);
-    // Prefer backend-provided message when available
+    
+    // Enhanced network error handling with specific error messages
     let errorMessage = 'Portfolio generation failed. Please try again.';
+    let networkErrorDetails = '';
+    
     if (typeof error === 'object' && error !== null) {
-      const errObj = error as { response?: { data?: { error?: string; details?: string } }; message?: string };
-      const backendMsg = errObj?.response?.data?.error || errObj?.response?.data?.details || errObj?.message;
-      if (backendMsg) {
-        errorMessage = backendMsg;
+      const errObj = error as { 
+        response?: { 
+          data?: { error?: string; details?: string }; 
+          status?: number; 
+          statusText?: string;
+        }; 
+        message?: string; 
+        code?: string;
+        name?: string;
+      };
+      
+      // Check for network connectivity issues
+      if (errObj.code === 'NETWORK_ERROR' || errObj.message?.includes('Network Error')) {
+        errorMessage = 'Network Error: Unable to connect to the server';
+        networkErrorDetails = 'Please check your internet connection and try again. If you\'re on mobile data, try switching to WiFi or vice versa.';
+      }
+      // Check for timeout errors
+      else if (errObj.code === 'ECONNABORTED' || errObj.message?.includes('timeout')) {
+        errorMessage = 'Request Timeout: The server took too long to respond';
+        networkErrorDetails = 'This might be due to a slow internet connection or server overload. Please try again in a moment.';
+      }
+      // Check for CORS errors
+      else if (errObj.message?.includes('CORS') || errObj.message?.includes('Access-Control-Allow-Origin')) {
+        errorMessage = 'CORS Error: Cross-origin request blocked';
+        networkErrorDetails = 'This is a browser security issue. Please try refreshing the page or contact support if the problem persists.';
+      }
+      // Check for specific HTTP error status codes
+      else if (errObj.response?.status) {
+        const status = errObj.response.status;
+        const statusText = errObj.response.statusText || '';
+        
+        switch (status) {
+          case 400:
+            errorMessage = 'Bad Request: Invalid data sent to server';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. Please check your resume file and try again.`;
+            break;
+          case 401:
+            errorMessage = 'Authentication Error: Please sign in again';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. Your session may have expired.`;
+            break;
+          case 403:
+            errorMessage = 'Access Denied: Insufficient permissions';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. You may not have access to this feature.`;
+            break;
+          case 404:
+            errorMessage = 'Service Not Found: API endpoint unavailable';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. The requested service is not available.`;
+            break;
+          case 413:
+            errorMessage = 'File Too Large: Resume file exceeds size limit';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. Please upload a smaller resume file.`;
+            break;
+          case 429:
+            errorMessage = 'Rate Limit Exceeded: Too many requests';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. Please wait a moment before trying again.`;
+            break;
+          case 500:
+            errorMessage = 'Server Error: Internal server error occurred';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. This is a server-side issue. Please try again later.`;
+            break;
+          case 502:
+            errorMessage = 'Bad Gateway: Server communication error';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. The server is temporarily unavailable.`;
+            break;
+          case 503:
+            errorMessage = 'Service Unavailable: Server temporarily down';
+            networkErrorDetails = `HTTP ${status}: ${statusText}. The service is under maintenance.`;
+            break;
+          default:
+            errorMessage = `HTTP Error ${status}: ${statusText}`;
+            networkErrorDetails = `An unexpected server error occurred. Status: ${status}`;
+        }
+      }
+      // Use backend-provided error message if available
+      else {
+        const backendMsg = errObj?.response?.data?.error || errObj?.response?.data?.details || errObj?.message;
+        if (backendMsg) {
+          errorMessage = backendMsg;
+          networkErrorDetails = 'This error was returned by the server.';
+        }
       }
     }
-  toast.push(errorMessage, { type: 'error' });
+    
+    // Display main error message
+    toast.push(errorMessage, { type: 'error', duration: 8000 });
+    
+    // Display additional details if available
+    if (networkErrorDetails) {
+      setTimeout(() => {
+        toast.push(`Details: ${networkErrorDetails}`, { type: 'warning', duration: 10000 });
+      }, 1000);
+    }
+    
+    // Show network status alert for connection issues
+    if (errorMessage.includes('Network Error') || errorMessage.includes('timeout') || errorMessage.includes('CORS')) {
+      setTimeout(() => {
+        toast.push('💡 Tip: If you\'re on mobile, try switching between WiFi and mobile data, or try again in a few minutes.', { type: 'info', duration: 12000 });
+      }, 2000);
+    }
   } finally {
     setIsUploading(false);
   }
   };
 
   const deployConfirmed = async (compiledHtml: string, projectName: string, token: string) => {
+    // Check network connectivity first
+    if (!isOnline || !navigator.onLine) {
+      toast.push('❌ No internet connection. Cannot deploy portfolio. Please check your network.', { type: 'error', duration: 8000 });
+      return;
+    }
+
     setIsPreviewOpen(false);
     setIsUploading(true);
     try {
@@ -231,7 +408,111 @@ const CreatePortfolio: React.FC = () => {
       }
     } catch (err) {
       console.error('Deployment error:', err);
-      toast.push('Deployment failed. See console for details.', { type: 'error' });
+      
+      // Enhanced deployment error handling with specific error messages
+      let errorMessage = 'Deployment failed. Please try again.';
+      let networkErrorDetails = '';
+      
+      if (typeof err === 'object' && err !== null) {
+        const errObj = err as { 
+          response?: { 
+            data?: { error?: string; details?: string }; 
+            status?: number; 
+            statusText?: string;
+          }; 
+          message?: string; 
+          code?: string;
+          name?: string;
+        };
+        
+        // Check for network connectivity issues
+        if (errObj.code === 'NETWORK_ERROR' || errObj.message?.includes('Network Error')) {
+          errorMessage = 'Network Error: Unable to connect to deployment server';
+          networkErrorDetails = 'Please check your internet connection and try again. Deployment requires a stable connection.';
+        }
+        // Check for timeout errors
+        else if (errObj.code === 'ECONNABORTED' || errObj.message?.includes('timeout')) {
+          errorMessage = 'Deployment Timeout: Server took too long to respond';
+          networkErrorDetails = 'Deployment can take time. Please wait a moment and try again, or check your internet speed.';
+        }
+        // Check for CORS errors
+        else if (errObj.message?.includes('CORS') || errObj.message?.includes('Access-Control-Allow-Origin')) {
+          errorMessage = 'CORS Error: Deployment request blocked';
+          networkErrorDetails = 'This is a browser security issue during deployment. Please try refreshing the page.';
+        }
+        // Check for specific HTTP error status codes
+        else if (errObj.response?.status) {
+          const status = errObj.response.status;
+          const statusText = errObj.response.statusText || '';
+          
+          switch (status) {
+            case 400:
+              errorMessage = 'Bad Request: Invalid deployment data';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. The portfolio data may be corrupted. Please regenerate and try again.`;
+              break;
+            case 401:
+              errorMessage = 'Authentication Error: Please sign in again';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. Your session expired during deployment.`;
+              break;
+            case 403:
+              errorMessage = 'Access Denied: Deployment not authorized';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. You may not have deployment permissions.`;
+              break;
+            case 404:
+              errorMessage = 'Deployment Service Not Found';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. The deployment endpoint is unavailable.`;
+              break;
+            case 413:
+              errorMessage = 'Portfolio Too Large: Exceeds deployment size limit';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. Please try a simpler template or smaller resume.`;
+              break;
+            case 429:
+              errorMessage = 'Rate Limit: Too many deployment attempts';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. Please wait before trying to deploy again.`;
+              break;
+            case 500:
+              errorMessage = 'Deployment Server Error: Internal error occurred';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. This is a server-side deployment issue.`;
+              break;
+            case 502:
+              errorMessage = 'Bad Gateway: Deployment service unavailable';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. The deployment service is temporarily down.`;
+              break;
+            case 503:
+              errorMessage = 'Service Unavailable: Deployment temporarily disabled';
+              networkErrorDetails = `HTTP ${status}: ${statusText}. Deployment service is under maintenance.`;
+              break;
+            default:
+              errorMessage = `Deployment HTTP Error ${status}: ${statusText}`;
+              networkErrorDetails = `An unexpected deployment error occurred. Status: ${status}`;
+          }
+        }
+        // Use backend-provided error message if available
+        else {
+          const backendMsg = errObj?.response?.data?.error || errObj?.response?.data?.details || errObj?.message;
+          if (backendMsg) {
+            errorMessage = `Deployment Error: ${backendMsg}`;
+            networkErrorDetails = 'This error was returned by the deployment service.';
+          }
+        }
+      }
+      
+      // Display main error message
+      toast.push(errorMessage, { type: 'error', duration: 8000 });
+      
+      // Display additional details if available
+      if (networkErrorDetails) {
+        setTimeout(() => {
+          toast.push(`Details: ${networkErrorDetails}`, { type: 'warning', duration: 10000 });
+        }, 1000);
+      }
+      
+      // Show network troubleshooting tips for connection issues
+      if (errorMessage.includes('Network Error') || errorMessage.includes('timeout') || errorMessage.includes('CORS')) {
+        setTimeout(() => {
+          toast.push('💡 Deployment Tip: Ensure stable internet connection. If on mobile, try WiFi for better deployment reliability.', { type: 'info', duration: 12000 });
+        }, 2000);
+      }
     } finally {
       setIsUploading(false);
     }
@@ -274,6 +555,18 @@ const CreatePortfolio: React.FC = () => {
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Header with Template Info */}
         <div className="text-center mb-6 sm:mb-8">
+          {/* Network Status Indicator */}
+          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mb-3 ${
+            isOnline 
+              ? 'bg-green-100 text-green-700 border border-green-200' 
+              : 'bg-red-100 text-red-700 border border-red-200'
+          }`}>
+            <div className={`w-2 h-2 rounded-full mr-2 ${
+              isOnline ? 'bg-green-500' : 'bg-red-500'
+            }`}></div>
+            {isOnline ? 'Connected' : 'No Internet Connection'}
+          </div>
+
           {/* Breadcrumb */}
           <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500 mb-4">
             <button
