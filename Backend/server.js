@@ -15,8 +15,6 @@ const prisma = new PrismaClient();
 // Configure CORS to allow requests from the deployed frontend and local dev
 const corsOptions = {
   origin: [
-    'https://www.crux-ai.co',
-    'https://crux-ai.co',
     'https://www.crux-ai.me',
     'https://crux-ai.me',
     'https://crux-ai-k3o2.onrender.com',
