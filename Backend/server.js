@@ -14,13 +14,26 @@ const prisma = new PrismaClient();
 
 // Configure CORS to allow requests from the deployed frontend and local dev
 const corsOptions = {
-  origin: [
-    'https://www.crux-ai.me',
-    'https://crux-ai.me',
-    'https://crux-ai-deployment-automation.onrender.com',
-    'http://localhost:5173',
-    'http://localhost:3000'
-  ],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://www.crux-ai.me',
+      'https://crux-ai.me',
+      'https://crux-ai-deployment-automation.onrender.com',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+    
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      console.log('CORS allowed origin:', origin);
+      return callback(null, true);
+    }
+    
+    console.log('CORS blocked origin:', origin);
+    return callback(null, false);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
@@ -37,6 +50,12 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'}`);
+  next();
+});
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
