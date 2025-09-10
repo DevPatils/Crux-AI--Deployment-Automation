@@ -397,24 +397,28 @@ const CreatePortfolio: React.FC = () => {
           {isPreviewOpen && compiledHtmlPreview && (
             <div className="fixed inset-0 z-50 bg-white overflow-hidden">
               {/* Full screen header bar */}
-              <div className="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-2 sm:px-4 py-2 h-12 sm:h-14">
+              <div className="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-2 sm:px-4 py-3 h-14 sm:h-16">
                 <div className="flex items-center space-x-2">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
                     <div className="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-500 rounded-full"></div>
                     <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
                   </div>
-                  <span className="text-xs sm:text-sm text-gray-600 ml-2 sm:ml-4">Generated Portfolio Preview</span>
+                  <span className="text-sm sm:text-base text-gray-700 ml-2 sm:ml-4 font-medium">Generated Portfolio Preview</span>
                 </div>
-                <div className="flex items-center gap-1 sm:gap-2">
+                <div className="flex items-center gap-3">
                   <button 
-                    className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs sm:text-sm font-medium transition-colors"
-                    onClick={() => { setIsPreviewOpen(false); setCompiledHtmlPreview(''); }}
+                    className="px-4 py-2 sm:px-6 sm:py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm sm:text-base font-medium transition-colors duration-200 flex items-center gap-2"
+                    onClick={() => { setIsPreviewOpen(false); }}
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                     Cancel
                   </button>
                   <button 
-                    className="px-2 py-1 sm:px-3 sm:py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs sm:text-sm font-medium transition-colors"
+                    className="px-4 py-2 sm:px-6 sm:py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm sm:text-base font-medium transition-colors duration-200 flex items-center gap-2"
+                    disabled={isUploading}
                     onClick={async () => {
                         if (!compiledHtmlPreview) { toast.push('No compiled HTML ready to deploy', { type: 'error' }); return; }
                         const token = await getToken();
@@ -423,13 +427,25 @@ const CreatePortfolio: React.FC = () => {
                         deployConfirmed(compiledHtmlPreview, projectName, token || '');
                       }}
                   >
-                    Confirm & Deploy
+                    {isUploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Deploying...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Deploy Portfolio
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
               
               {/* Full screen content */}
-              <div className="w-full h-[calc(100vh-3rem)] sm:h-[calc(100vh-3.5rem)] overflow-auto bg-white">
+              <div className="w-full h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] overflow-auto bg-white">
                 <iframe
                   srcDoc={compiledHtmlPreview}
                   className="w-full h-full border-0"
@@ -440,6 +456,49 @@ const CreatePortfolio: React.FC = () => {
                   title="Generated Portfolio Preview"
                   sandbox="allow-same-origin allow-scripts"
                 />
+              </div>
+
+              {/* Bottom action bar for better visibility */}
+              <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between shadow-lg">
+                <div className="flex items-center text-sm text-gray-600">
+                  <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Portfolio generated successfully
+                </div>
+                <div className="flex items-center gap-3">
+                  <button 
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors duration-200"
+                    onClick={() => { setIsPreviewOpen(false); }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+                    disabled={isUploading}
+                    onClick={async () => {
+                        if (!compiledHtmlPreview) { toast.push('No compiled HTML ready to deploy', { type: 'error' }); return; }
+                        const token = await getToken();
+                        const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`;
+                        const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                        deployConfirmed(compiledHtmlPreview, projectName, token || '');
+                      }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Deploying...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Deploy Portfolio
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           )}
