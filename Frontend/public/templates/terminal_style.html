@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>{{personalInfo.name}} — Developer Terminal</title>
     <meta name="description" content="Developer Portfolio of {{personalInfo.name}}" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,6 +14,8 @@
     <style>
       html {
         scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
       }
       
       body {
@@ -19,6 +24,11 @@
         color: #00ff00;
         overflow-x: hidden;
         min-height: 100vh;
+        /* Mobile performance optimizations */
+        -webkit-overflow-scrolling: touch;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeSpeed;
       }
       
       .terminal-window {
@@ -151,6 +161,514 @@
       .terminal-section:last-child {
         border-bottom: none;
       }
+
+      /* Mobile Navigation */
+      .mobile-nav-toggle {
+        display: none;
+        background: none;
+        border: 2px solid #00ff00;
+        color: #00ff00;
+        padding: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .mobile-nav-menu {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.98);
+        backdrop-filter: blur(20px);
+        border-bottom: 2px solid #333;
+        z-index: 40;
+        padding: 20px;
+      }
+
+      .mobile-nav-menu.active {
+        display: block;
+      }
+
+      .mobile-nav-menu a {
+        display: block;
+        padding: 12px 0;
+        border-bottom: 1px solid #333;
+        font-size: 16px;
+      }
+
+      .mobile-nav-menu a:last-child {
+        border-bottom: none;
+      }
+
+      /* Responsive Design - Mobile First Approach */
+      
+      /* Large Tablets and Small Desktops */
+      @media (max-width: 1024px) {
+        .terminal-content {
+          padding: 16px;
+        }
+
+        .terminal-container {
+          margin: 0 8px;
+        }
+      }
+
+      /* Standard Tablets */
+      @media (max-width: 768px) {
+        nav.hidden.md\\:flex {
+          display: none !important;
+        }
+
+        .mobile-nav-toggle {
+          display: block;
+        }
+
+        .terminal-header-info .text-lg {
+          font-size: 16px;
+        }
+
+        .terminal-header-info .text-sm {
+          font-size: 12px;
+        }
+
+        .h-20 {
+          height: 60px;
+        }
+
+        .pt-40 {
+          padding-top: 80px;
+        }
+
+        .px-6 {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+
+        .lg\\:px-10 {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+
+        .terminal-container {
+          margin: 0 4px;
+          border-radius: 8px;
+        }
+
+        .terminal-content {
+          padding: 12px;
+        }
+
+        .terminal-header {
+          padding: 8px 12px;
+        }
+
+        .terminal-title {
+          font-size: 11px;
+        }
+
+        .terminal-dot {
+          width: 10px;
+          height: 10px;
+        }
+
+        .grid.grid-cols-1.lg\\:grid-cols-3 {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .grid.sm\\:grid-cols-2 {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .flex.flex-col.sm\\:flex-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .flex.flex-col.lg\\:flex-row {
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .text-lg {
+          font-size: 16px;
+        }
+
+        .text-xl {
+          font-size: 18px;
+        }
+
+        .ascii-border pre {
+          font-size: 10px;
+        }
+
+        .code-highlight {
+          padding: 12px;
+          font-size: 13px;
+        }
+
+        .terminal-button {
+          padding: 10px 16px;
+          font-size: 12px;
+          width: 100%;
+          text-align: center;
+          margin-bottom: 8px;
+        }
+
+        .flex.flex-wrap.gap-2 {
+          justify-content: center;
+        }
+
+        .grid.gap-6 {
+          gap: 16px;
+        }
+
+        .space-y-6 > * + * {
+          margin-top: 16px;
+        }
+
+        .space-y-4 > * + * {
+          margin-top: 12px;
+        }
+
+        .border-l-4 {
+          padding-left: 12px;
+        }
+
+        .grid.md\\:grid-cols-2 {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+      }
+
+      /* Mobile Phones */
+      @media (max-width: 480px) {
+        .h-20 {
+          height: 50px;
+        }
+
+        .pt-40 {
+          padding-top: 70px;
+        }
+
+        .px-6, .lg\\:px-10 {
+          padding-left: 8px;
+          padding-right: 8px;
+        }
+
+        .pb-16 {
+          padding-bottom: 12px;
+        }
+
+        .terminal-container {
+          margin: 0 2px;
+          border-radius: 6px;
+        }
+
+        .terminal-content {
+          padding: 8px;
+          min-height: 150px;
+        }
+
+        .terminal-header {
+          padding: 6px 8px;
+        }
+
+        .terminal-title {
+          font-size: 10px;
+        }
+
+        .terminal-dot {
+          width: 8px;
+          height: 8px;
+        }
+
+        .terminal-header-info .text-lg {
+          font-size: 14px;
+        }
+
+        .terminal-header-info .text-sm {
+          font-size: 10px;
+        }
+
+        .space-x-8 > * + * {
+          margin-left: 16px;
+        }
+
+        .nav-link {
+          font-size: 12px;
+        }
+
+        .text-xs {
+          font-size: 10px;
+        }
+
+        .text-sm {
+          font-size: 11px;
+        }
+
+        .text-lg {
+          font-size: 14px;
+        }
+
+        .text-xl {
+          font-size: 16px;
+        }
+
+        .ascii-border pre {
+          font-size: 8px;
+          line-height: 1.2;
+        }
+
+        .code-highlight {
+          padding: 8px;
+          font-size: 11px;
+          border-radius: 4px;
+        }
+
+        .terminal-button {
+          padding: 8px 12px;
+          font-size: 10px;
+          margin-bottom: 6px;
+        }
+
+        .prompt::before {
+          font-size: 11px;
+        }
+
+        .grid.gap-6, .grid.gap-8 {
+          gap: 12px;
+        }
+
+        .space-y-6 > * + * {
+          margin-top: 12px;
+        }
+
+        .space-y-4 > * + * {
+          margin-top: 8px;
+        }
+
+        .space-y-3 > * + * {
+          margin-top: 6px;
+        }
+
+        .space-y-2 > * + * {
+          margin-top: 4px;
+        }
+
+        .gap-2 {
+          gap: 4px;
+        }
+
+        .gap-3 {
+          gap: 6px;
+        }
+
+        .gap-4 {
+          gap: 8px;
+        }
+
+        .border-l-4 {
+          padding-left: 8px;
+          border-left-width: 2px;
+        }
+
+        .pl-6 {
+          padding-left: 8px;
+        }
+
+        .pl-4 {
+          padding-left: 8px;
+        }
+
+        .mb-6 {
+          margin-bottom: 12px;
+        }
+
+        .mb-4 {
+          margin-bottom: 8px;
+        }
+
+        .mb-3 {
+          margin-bottom: 6px;
+        }
+
+        .mt-6 {
+          margin-top: 12px;
+        }
+
+        .mt-4 {
+          margin-top: 8px;
+        }
+
+        .mt-3 {
+          margin-top: 6px;
+        }
+
+        .mobile-nav-menu {
+          top: 50px;
+          padding: 12px;
+        }
+
+        .mobile-nav-menu a {
+          padding: 10px 0;
+          font-size: 14px;
+        }
+      }
+
+      /* Extra Small Mobile */
+      @media (max-width: 360px) {
+        .h-20 {
+          height: 45px;
+        }
+
+        .pt-40 {
+          padding-top: 60px;
+        }
+
+        .px-6, .lg\\:px-10 {
+          padding-left: 4px;
+          padding-right: 4px;
+        }
+
+        .terminal-container {
+          margin: 0 1px;
+        }
+
+        .terminal-content {
+          padding: 6px;
+        }
+
+        .terminal-header {
+          padding: 4px 6px;
+        }
+
+        .terminal-header-info .text-lg {
+          font-size: 12px;
+        }
+
+        .terminal-header-info .text-sm {
+          font-size: 9px;
+        }
+
+        .code-highlight {
+          padding: 6px;
+          font-size: 10px;
+        }
+
+        .terminal-button {
+          padding: 6px 10px;
+          font-size: 9px;
+        }
+
+        .ascii-border pre {
+          font-size: 7px;
+        }
+
+        .mobile-nav-menu {
+          top: 45px;
+          padding: 8px;
+        }
+      }
+
+      /* Touch-friendly interactions for mobile devices */
+      @media (hover: none) and (pointer: coarse) {
+        .terminal-button, .nav-link {
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          min-height: 44px; /* iOS accessibility guideline */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .terminal-button:hover {
+          background: linear-gradient(45deg, #0a4a0a, #1a6a1a);
+          box-shadow: none;
+        }
+        
+        .terminal-button:active {
+          transform: scale(0.98);
+          transition: transform 0.1s ease;
+        }
+        
+        .nav-link:hover {
+          color: #00ff00;
+          text-shadow: none;
+        }
+        
+        .code-highlight:hover {
+          background: #111;
+        }
+
+        .mobile-nav-toggle {
+          min-height: 44px;
+          min-width: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* Ensure tap targets are large enough */
+        .terminal-dot {
+          min-width: 20px;
+          min-height: 20px;
+        }
+
+        .mobile-nav-menu a {
+          min-height: 44px;
+          display: flex;
+          align-items: center;
+        }
+      }
+
+      /* Performance optimizations for mobile */
+      @media (max-width: 768px) {
+        .matrix-rain {
+          display: none; /* Disable matrix effect on mobile for better performance */
+        }
+        
+        /* GPU acceleration for better performance */
+        .terminal-container,
+        .terminal-header,
+        .terminal-button {
+          transform: translateZ(0);
+          will-change: transform;
+        }
+      }
+
+      /* Accessibility improvements */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        
+        html {
+          scroll-behavior: auto !important;
+        }
+
+        .matrix-rain {
+          display: none !important;
+        }
+      }
+
+      /* High contrast mode support */
+      @media (prefers-contrast: high) {
+        .terminal-container,
+        .code-highlight {
+          border: 2px solid #00ff00;
+        }
+        
+        .terminal-button {
+          border: 2px solid #00ff00;
+        }
+      }
     </style>
   </head>
   <body>
@@ -175,11 +693,26 @@
             <a href="#contact" class="nav-link">./contact</a>
           </nav>
           
-          <div class="terminal-controls">
+          <!-- Mobile Navigation Toggle -->
+          <button class="mobile-nav-toggle md:hidden" id="mobile-nav-toggle">
+            <i class="fas fa-terminal"></i>
+          </button>
+          
+          <div class="terminal-controls hidden md:flex">
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
           </div>
+        </div>
+        
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-nav-menu" id="mobile-nav-menu">
+          <a href="#about" class="nav-link">./about</a>
+          {{#if experience}}<a href="#experience" class="nav-link">./experience</a>{{/if}}
+          {{#if projects}}<a href="#projects" class="nav-link">./projects</a>{{/if}}
+          {{#if achievements}}<a href="#achievements" class="nav-link">./achievements</a>{{/if}}
+          {{#if education}}<a href="#education" class="nav-link">./education</a>{{/if}}
+          <a href="#contact" class="nav-link">./contact</a>
         </div>
       </div>
     </header>
@@ -411,7 +944,7 @@
                     
                     {{#if link}}
                     <div class="flex gap-3">
-                      <a href="{{link}}" target="_blank" class="terminal-button">
+                      <a href="{{link}}" target="_blank" rel="noopener noreferrer" class="terminal-button project-link-fix" data-url="{{link}}">
                         <i class="fas fa-external-link-alt"></i> View Project
                       </a>
                     </div>
@@ -554,7 +1087,7 @@
                     {{#if personalInfo.phone}}
                     <div class="flex items-center gap-2">
                       <span class="text-blue-400">phone:</span>
-                      <span class="text-white">{{personalInfo.phone}}</span>
+                      <a href="tel:{{personalInfo.phone}}" class="text-white hover:text-green-400 transition-colors">{{personalInfo.phone}}</a>
                     </div>
                     {{/if}}
                     {{#if personalInfo.location}}
@@ -572,17 +1105,17 @@
                 <div class="code-highlight mt-4">
                   <div class="space-y-3">
                     {{#if personalInfo.linkedin}}
-                    <a href="{{personalInfo.linkedin}}" target="_blank" class="terminal-button block text-center">
+                    <a href="{{personalInfo.linkedin}}" target="_blank" rel="noopener noreferrer" class="terminal-button block text-center social-url-fix" data-url="{{personalInfo.linkedin}}">
                       <i class="fab fa-linkedin"></i> LinkedIn Profile
                     </a>
                     {{/if}}
                     {{#if personalInfo.github}}
-                    <a href="{{personalInfo.github}}" target="_blank" class="terminal-button block text-center">
+                    <a href="{{personalInfo.github}}" target="_blank" rel="noopener noreferrer" class="terminal-button block text-center social-url-fix" data-url="{{personalInfo.github}}">
                       <i class="fab fa-github"></i> GitHub Repositories
                     </a>
                     {{/if}}
                     {{#if personalInfo.portfolio}}
-                    <a href="{{personalInfo.portfolio}}" target="_blank" class="terminal-button block text-center">
+                    <a href="{{personalInfo.portfolio}}" target="_blank" rel="noopener noreferrer" class="terminal-button block text-center social-url-fix" data-url="{{personalInfo.portfolio}}">
                       <i class="fas fa-globe"></i> Portfolio Website
                     </a>
                     {{/if}}
@@ -603,87 +1136,380 @@
       function fixURL(url) {
         if (!url) return url;
         
+        // Remove any whitespace
+        url = url.trim();
+        
         // If URL doesn't start with http:// or https://, add https://
         if (!/^https?:\/\//i.test(url)) {
-          return 'https://' + url;
+          // Handle special cases for common domains
+          if (url.includes('github.com')) {
+            // Ensure GitHub URLs always start with https://
+            return 'https://' + url.replace(/^(www\.)?/, '');
+          } else if (url.includes('linkedin.com')) {
+            return 'https://www.' + url.replace(/^(www\.)?/, '');
+          } else if (url.includes('twitter.com') || url.includes('x.com')) {
+            return 'https://www.' + url.replace(/^(www\.)?/, '');
+          } else {
+            return 'https://' + url;
+          }
         }
         return url;
       }
 
-      // Fix all social links on page load
+      // Enhanced GitHub URL fixing
+      function fixGitHubURL(url) {
+        if (!url) return url;
+        
+        url = url.trim();
+        
+        // If it's just a username, convert to full GitHub URL
+        if (/^[a-zA-Z0-9_-]+$/.test(url)) {
+          return 'https://github.com/' + url;
+        }
+        
+        // If it starts with github.com but no protocol
+        if (url.startsWith('github.com/')) {
+          return 'https://' + url;
+        }
+        
+        // If it already has protocol, return as is
+        if (/^https?:\/\//i.test(url)) {
+          return url;
+        }
+        
+        // If it contains github.com but might be malformed
+        if (url.includes('github.com')) {
+          // Extract the part after github.com
+          const match = url.match(/github\.com\/(.+)/);
+          if (match) {
+            return 'https://github.com/' + match[1];
+          }
+          // Fallback: add https to the beginning
+          return 'https://' + url.replace(/^(www\.)?/, '');
+        }
+        
+        // If no github.com is present, assume it's a username
+        if (!url.includes('.') && /^[a-zA-Z0-9_-]+$/.test(url)) {
+          return 'https://github.com/' + url;
+        }
+        
+        return fixURL(url);
+      }
+
+      // Fix email links
+      function fixEmailLink(email) {
+        if (!email) return email;
+        email = email.trim();
+        if (!email.startsWith('mailto:')) {
+          return 'mailto:' + email;
+        }
+        return email;
+      }
+
+      // Fix phone links
+      function fixPhoneLink(phone) {
+        if (!phone) return phone;
+        phone = phone.trim();
+        if (!phone.startsWith('tel:')) {
+          return 'tel:' + phone.replace(/\s+/g, '');
+        }
+        return phone;
+      }
+
+      // Mobile navigation functionality
+      function initMobileNavigation() {
+        const mobileToggle = document.getElementById('mobile-nav-toggle');
+        const mobileMenu = document.getElementById('mobile-nav-menu');
+        const navLinks = document.querySelectorAll('.mobile-nav-menu .nav-link');
+
+        if (mobileToggle && mobileMenu) {
+          mobileToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+            const icon = this.querySelector('i');
+            if (mobileMenu.classList.contains('active')) {
+              icon.classList.remove('fa-terminal');
+              icon.classList.add('fa-times');
+            } else {
+              icon.classList.remove('fa-times');
+              icon.classList.add('fa-terminal');
+            }
+          });
+
+          // Close mobile menu when clicking on a link
+          navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+              mobileMenu.classList.remove('active');
+              const icon = mobileToggle.querySelector('i');
+              icon.classList.remove('fa-times');
+              icon.classList.add('fa-terminal');
+            });
+          });
+
+          // Close mobile menu when clicking outside
+          document.addEventListener('click', function(e) {
+            if (!mobileMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
+              mobileMenu.classList.remove('active');
+              const icon = mobileToggle.querySelector('i');
+              icon.classList.remove('fa-times');
+              icon.classList.add('fa-terminal');
+            }
+          });
+        }
+      }
+
+      // Enhanced link fixing and initialization
       document.addEventListener('DOMContentLoaded', function() {
+        // Prevent any accidental relative path issues
+        const currentDomain = window.location.hostname;
+        
+        // Fix social links with enhanced handling
         document.querySelectorAll('.social-url-fix').forEach(link => {
+          const originalUrl = link.dataset.url;
+          if (originalUrl) {
+            let fixedUrl;
+            // Use enhanced GitHub URL fixing for GitHub links
+            if (originalUrl.includes('github') || link.querySelector('i.fa-github')) {
+              fixedUrl = fixGitHubURL(originalUrl);
+              console.log('Fixed GitHub URL:', originalUrl, '->', fixedUrl);
+            } else {
+              fixedUrl = fixURL(originalUrl);
+              console.log('Fixed URL:', originalUrl, '->', fixedUrl);
+            }
+            
+            // Double-check: ensure we never create relative paths
+            if (!fixedUrl.startsWith('http') && !fixedUrl.startsWith('mailto:') && !fixedUrl.startsWith('tel:')) {
+              fixedUrl = 'https://' + fixedUrl;
+            }
+            
+            link.href = fixedUrl;
+            
+            // Ensure all social links open in new tab
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+            
+            // Additional debug
+            console.log('Final href set:', link.href);
+          }
+        });
+
+        // Fix project links
+        document.querySelectorAll('.project-link-fix').forEach(link => {
           const originalUrl = link.dataset.url;
           if (originalUrl) {
             const fixedUrl = fixURL(originalUrl);
             link.href = fixedUrl;
+            
+            // Ensure project links open in new tab
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
           }
         });
 
+        // Fix all external links with enhanced handling
+        document.querySelectorAll('a[href]').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+            let fixedUrl;
+            
+            // Skip if already processed by social-url-fix or project-link-fix
+            if (link.classList.contains('social-url-fix') || link.classList.contains('project-link-fix')) {
+              return;
+            }
+            
+            // Use enhanced GitHub URL fixing for GitHub links
+            if (href.includes('github') || link.querySelector('i.fa-github') || link.textContent.toLowerCase().includes('github')) {
+              fixedUrl = fixGitHubURL(href);
+            } else {
+              fixedUrl = fixURL(href);
+            }
+            
+            link.href = fixedUrl;
+            
+            // Ensure external links open in new tab
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+          }
+        });
+
+        // Fix email links in contact sections
+        document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
+          const email = link.href.replace('mailto:', '');
+          link.href = fixEmailLink(email);
+        });
+
+        // Convert plain email text to clickable links
+        document.querySelectorAll('.terminal-content').forEach(container => {
+          const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+          const walker = document.createTreeWalker(
+            container,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+          );
+
+          const textNodes = [];
+          let node;
+          while (node = walker.nextNode()) {
+            if (node.nodeValue.match(emailRegex)) {
+              textNodes.push(node);
+            }
+          }
+
+          textNodes.forEach(textNode => {
+            const html = textNode.nodeValue.replace(emailRegex, '<a href="mailto:$&" class="text-blue-400 hover:text-blue-300">$&</a>');
+            if (html !== textNode.nodeValue) {
+              const wrapper = document.createElement('span');
+              wrapper.innerHTML = html;
+              textNode.parentNode.replaceChild(wrapper, textNode);
+            }
+          });
+        });
+
+        // Convert plain phone numbers to clickable links
+        document.querySelectorAll('.terminal-content').forEach(container => {
+          const phoneRegex = /\b(\+?1?[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})\b/g;
+          const walker = document.createTreeWalker(
+            container,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+          );
+
+          const textNodes = [];
+          let node;
+          while (node = walker.nextNode()) {
+            if (node.nodeValue.match(phoneRegex) && !node.parentNode.closest('a')) {
+              textNodes.push(node);
+            }
+          }
+
+          textNodes.forEach(textNode => {
+            const html = textNode.nodeValue.replace(phoneRegex, '<a href="tel:$&" class="text-blue-400 hover:text-blue-300">$&</a>');
+            if (html !== textNode.nodeValue) {
+              const wrapper = document.createElement('span');
+              wrapper.innerHTML = html;
+              textNode.parentNode.replaceChild(wrapper, textNode);
+            }
+          });
+        });
+
         // Hide empty social link containers
-        document.querySelectorAll('.mt-6.flex.flex-wrap.gap-2').forEach(container => {
+        document.querySelectorAll('.mt-6.flex.flex-wrap.gap-2, .space-y-3').forEach(container => {
           if (container.children.length === 0 || container.textContent.trim() === '') {
             container.style.display = 'none';
           }
         });
+
+        // Initialize mobile navigation
+        initMobileNavigation();
       });
 
-      // Matrix Rain Effect
-      const canvas = document.getElementById('matrix');
-      const ctx = canvas.getContext('2d');
+      // Matrix Rain Effect (disabled on mobile for performance)
+      function initMatrixEffect() {
+        if (window.innerWidth <= 768) return; // Skip on mobile
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
 
-      const matrix = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
-      const matrixArray = matrix.split("");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-      const fontSize = 10;
-      const columns = canvas.width / fontSize;
+        const matrix = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const matrixArray = matrix.split("");
 
-      const drops = [];
-      for(let x = 0; x < columns; x++) {
-        drops[x] = 1;
-      }
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
 
-      function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = '#00ff00';
-        ctx.font = fontSize + 'px JetBrains Mono';
-        
-        for(let i = 0; i < drops.length; i++) {
-          const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
-          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-          
-          if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
-          }
-          drops[i]++;
+        const drops = [];
+        for(let x = 0; x < columns; x++) {
+          drops[x] = 1;
         }
+
+        function draw() {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          ctx.fillStyle = '#00ff00';
+          ctx.font = fontSize + 'px JetBrains Mono';
+          
+          for(let i = 0; i < drops.length; i++) {
+            const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            
+            if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+              drops[i] = 0;
+            }
+            drops[i]++;
+          }
+        }
+
+        const matrixInterval = setInterval(draw, 35);
+
+        // Clean up on resize or when mobile
+        window.addEventListener('resize', () => {
+          if (window.innerWidth <= 768) {
+            clearInterval(matrixInterval);
+            canvas.style.display = 'none';
+          } else {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            canvas.style.display = 'block';
+          }
+        });
       }
 
-      setInterval(draw, 35);
-
-      // Smooth scrolling for navigation links
+      // Enhanced smooth scrolling for navigation links
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
           e.preventDefault();
           const target = document.querySelector(this.getAttribute('href'));
           if (target) {
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const targetPosition = target.offsetTop - headerHeight - 20;
+            
+            window.scrollTo({
+              top: targetPosition,
+              behavior: 'smooth'
             });
           }
         });
       });
 
-      // Resize canvas on window resize
+      // Initialize matrix effect when page loads
+      window.addEventListener('load', initMatrixEffect);
+
+      // Handle orientation change for mobile devices
+      window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+          // Close mobile menu on orientation change
+          const mobileMenu = document.getElementById('mobile-nav-menu');
+          const mobileToggle = document.getElementById('mobile-nav-toggle');
+          
+          if (mobileMenu && mobileToggle) {
+            mobileMenu.classList.remove('active');
+            const icon = mobileToggle.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-terminal');
+          }
+
+          // Reinitialize matrix effect if needed
+          if (window.innerWidth > 768) {
+            initMatrixEffect();
+          }
+        }, 100);
+      });
+
+      // Performance optimization: Debounced resize handler
+      let resizeTimeout;
       window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          const canvas = document.getElementById('matrix');
+          if (canvas && window.innerWidth > 768) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+          }
+        }, 250);
       });
     </script>
   </body>

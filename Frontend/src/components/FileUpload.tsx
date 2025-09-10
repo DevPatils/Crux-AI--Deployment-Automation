@@ -4,8 +4,7 @@ import { useToast } from './useToast';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
-  onUpload: (file: File, avatar?: File) => Promise<void>;
-  isUploading: boolean;
+  onAvatarSelect?: (avatar: File | null) => void;
   isAuthenticated?: boolean;
   className?: string;
   showAvatarUpload?: boolean;
@@ -14,8 +13,7 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({ 
   onFileSelect, 
-  onUpload, 
-  isUploading, 
+  onAvatarSelect,
   isAuthenticated = false,
   className = "",
   showAvatarUpload = false,
@@ -82,6 +80,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         return;
       }
       setAvatar(selectedFile);
+      onAvatarSelect?.(selectedFile);
     } else {
       toast.push('Please select a valid image file (JPEG, PNG, or WebP)', { type: 'error' });
     }
@@ -94,20 +93,16 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
-  const handleUploadClick = async () => {
-    if (file) {
-      await onUpload(file, avatar || undefined);
-    }
-  };
-
   const handleRemoveFile = () => {
     setFile(null);
     // Also clear avatar when resume is removed
     setAvatar(null);
+    onAvatarSelect?.(null);
   };
 
   const handleRemoveAvatar = () => {
     setAvatar(null);
+    onAvatarSelect?.(null);
   };
 
   return (
@@ -273,34 +268,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
           )}
 
           {/* Action Buttons */}
-          {isAuthenticated && (
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              {file && (
-                <button
-                  onClick={handleRemoveFile}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 border border-gray-300"
-                >
-                  Remove File
-                </button>
-              )}
-              
+          {isAuthenticated && file && (
+            <div className="flex justify-center mt-6">
               <button
-                onClick={handleUploadClick}
-                disabled={!file || isUploading}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                  file && !isUploading
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+                onClick={handleRemoveFile}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-300 border border-gray-300"
               >
-                {isUploading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating Portfolio...</span>
-                  </div>
-                ) : (
-                  'Generate Portfolio'
-                )}
+                Remove File
               </button>
             </div>
           )}

@@ -139,63 +139,53 @@ export default function Dashboard() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 sm:px-6">
-        <div className="w-full max-w-6xl py-8 sm:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-            <div className="order-2 lg:order-1">
-              <div className="bg-white/90 backdrop-blur-sm border border-gray-200/60 rounded-2xl p-6 sm:p-8 shadow-lg">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight mb-4">
-                  Welcome to CRUX AI — your portfolio companion
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-6xl w-full">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+                  Build Beautiful Portfolios in Minutes
                 </h1>
-                <p className="text-gray-600 text-base sm:text-lg mb-6">
-                  Create, manage, and deploy beautiful portfolios in minutes. To access your dashboard and saved projects, please sign up or sign in.
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  Transform your resume into a stunning, professional portfolio with AI-powered design templates.
                 </p>
+              </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3">
-                  <button
-                    onClick={() => navigate('/signup')}
-                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md text-center"
-                  >
-                    Create an account
-                  </button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg"
+                >
+                  Get Started Free
+                </button>
+                <button
+                  onClick={() => navigate('/signin')}
+                  className="px-8 py-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-lg"
+                >
+                  Sign In
+                </button>
+              </div>
 
-                  <button
-                    onClick={() => navigate('/signin')}
-                    className="w-full sm:w-auto px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium text-center"
-                  >
-                    Sign in
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/templates')}
-                    className="w-full sm:w-auto px-4 py-3 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium text-center"
-                  >
-                    Explore templates
-                  </button>
-                </div>
-
-                <p className="text-xs sm:text-sm text-gray-500 mt-6 text-center sm:text-left">No credit card required • Improve your online presence instantly</p>
+              <div className="flex items-center space-x-6 text-sm text-gray-500">
+                <span>✓ No credit card required</span>
+                <span>✓ Live in minutes</span>
+                <span>✓ Professional templates</span>
               </div>
             </div>
 
-            <div className="order-1 lg:order-2 flex items-center justify-center">
-              <div className="w-full max-w-md">
-                <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-100">
-                  {/* Decorative illustration */}
-                  <svg viewBox="0 0 600 400" className="w-full h-48 sm:h-64" xmlns="http://www.w3.org/2000/svg" fill="none">
-                    <rect x="0" y="0" width="600" height="400" rx="24" fill="#eef2ff" />
-                    <g transform="translate(40,30)">
-                      <rect x="0" y="0" width="220" height="120" rx="12" fill="#fff" stroke="#e6e9f2" />
-                      <rect x="12" y="16" width="60" height="12" rx="6" fill="#c7d2fe" />
-                      <rect x="12" y="40" width="180" height="10" rx="6" fill="#e9eefb" />
-                      <rect x="12" y="58" width="140" height="10" rx="6" fill="#e9eefb" />
-
-                      <rect x="260" y="10" width="260" height="160" rx="10" fill="#fff" stroke="#e6e9f2" />
-                      <circle cx="340" cy="70" r="28" fill="#c7d2fe" />
-                      <rect x="382" y="46" width="110" height="12" rx="6" fill="#e9eefb" />
-                      <rect x="382" y="70" width="80" height="10" rx="6" fill="#e9eefb" />
-                    </g>
-                  </svg>
+            {/* Right Illustration */}
+            <div className="hidden lg:block">
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg"></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="h-16 bg-gray-100 rounded"></div>
+                    <div className="h-16 bg-gray-100 rounded"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -206,223 +196,151 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200/50">
+      <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-6 sm:py-8 gap-4 sm:gap-0">
-            <div className="flex items-start sm:items-center space-x-3 sm:space-x-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
-                  Welcome back, {user?.firstName || "User"}!
-                </h1>
-                <p className="text-gray-600 mt-1 text-sm sm:text-base lg:text-lg">
-                  Manage and showcase your portfolio projects
-                </p>
-              </div>
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Welcome back, {user?.firstName || "User"}
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Manage your portfolio projects
+              </p>
             </div>
-            <div className="flex items-center w-full sm:w-auto">
-              <button
-                onClick={() => navigate('/templates')}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 font-medium text-sm sm:text-base"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Create New Portfolio</span>
-              </button>
-            </div>
+            <button
+              onClick={() => navigate('/templates')}
+              className="px-3 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base"
+            >
+              <span className="hidden sm:inline">Create New Portfolio</span>
+              <span className="sm:hidden">Create</span>
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 lg:mb-10">
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-4 sm:p-6 lg:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center">
-              <div className="p-3 sm:p-4 bg-blue-500 rounded-2xl shadow flex-shrink-0">
-                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <div className="ml-4 sm:ml-6 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Projects</p>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-1">{projects.length}</p>
-              </div>
-            </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Projects</h3>
+            <p className="text-3xl font-bold text-gray-900 mt-2">{projects.length}</p>
           </div>
-
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-4 sm:p-6 lg:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center">
-              <div className="p-3 sm:p-4 bg-green-500 rounded-2xl shadow flex-shrink-0">
-                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l5 5L20 7" />
-                </svg>
-              </div>
-              <div className="ml-4 sm:ml-6 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Live Deployments</p>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-1">
-                  {projects.filter(p => p.deployedUrl).length}
-                </p>
-              </div>
-            </div>
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Live Deployments</h3>
+            <p className="text-3xl font-bold text-gray-900 mt-2">
+              {projects.filter(p => p.deployedUrl).length}
+            </p>
           </div>
-
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow p-4 sm:p-6 lg:p-8 border border-gray-200/50 hover:shadow-lg transition-all duration-300 sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center">
-              <div className="p-3 sm:p-4 bg-purple-500 rounded-2xl shadow flex-shrink-0">
-                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-              <div className="ml-4 sm:ml-6 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">This Month</p>
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mt-1">
-                  {projects.filter(p => {
-                    const projectDate = new Date(p.createdAt);
-                    const now = new Date();
-                    return projectDate.getMonth() === now.getMonth() && 
-                           projectDate.getFullYear() === now.getFullYear();
-                  }).length}
-                </p>
-              </div>
-            </div>
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">This Month</h3>
+            <p className="text-3xl font-bold text-gray-900 mt-2">
+              {projects.filter(p => {
+                const projectDate = new Date(p.createdAt);
+                const now = new Date();
+                return projectDate.getMonth() === now.getMonth() && 
+                       projectDate.getFullYear() === now.getFullYear();
+              }).length}
+            </p>
           </div>
         </div>
 
         {/* Projects Section */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50">
-      <div className="px-4 sm:px-8 py-6 border-b border-gray-200/50">
-            <div className="flex justify-between items-center">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Your Portfolio Projects</h2>
-                <p className="text-gray-600 mt-1">Manage and monitor your deployed portfolios</p>
+                <h2 className="text-xl font-semibold text-gray-900">Your Projects</h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  {projects.length} {projects.length === 1 ? 'project' : 'projects'} total
+                </p>
               </div>
               <button
                 onClick={refreshProjects}
                 disabled={loading}
-        className="px-4 py-2 text-sm bg-gray-100/70 hover:bg-gray-200/70 rounded-xl transition-all duration-200 disabled:opacity-50 backdrop-blur-sm border border-gray-200/50 font-medium"
+                className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 font-medium"
               >
-                {loading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Loading...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    <span>Refresh</span>
-                  </div>
-                )}
+                {loading ? 'Loading...' : 'Refresh'}
               </button>
             </div>
           </div>
 
-          <div className="p-4 sm:p-8">
+          <div className="p-6">
             {loading ? (
               <div className="flex justify-center items-center py-16">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-                  <span className="text-lg text-gray-600 font-medium">Loading your projects...</span>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 border-3 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                  <span className="text-gray-600 font-medium">Loading projects...</span>
                 </div>
               </div>
             ) : error ? (
               <div className="text-center py-16">
-                <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-2xl flex items-center justify-center">
-                  <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div className="w-16 h-16 mx-auto mb-4 bg-red-50 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Error Loading Projects</h3>
-                <p className="text-gray-600 mb-6 text-lg">{error}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Projects</h3>
+                <p className="text-gray-600 mb-6">{error}</p>
                 <button
                   onClick={refreshProjects}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   Try Again
                 </button>
               </div>
             ) : projects.length > 0 ? (
-              <div className="grid gap-8">
+              <div className="space-y-4">
                 {projects.map((project) => (
-                    <div key={project.id} className="bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 sm:p-8 hover:shadow-lg transition-all duration-300">
-                      <div className="flex flex-col sm:flex-row justify-between items-start mb-6">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">
-                          {project.title}
+                  <div key={project.id} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">
+                          {project.title || 'Untitled Portfolio'}
                         </h3>
-                        <div className="flex items-center space-x-6 text-sm text-gray-600">
-                          <span className="flex items-center bg-gray-100/70 px-3 py-1 rounded-xl">
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
-                            </svg>
+                        <div className="flex flex-wrap items-center gap-3 mt-2">
+                          <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                             {getTemplateFromPrompt(project.prompt)}
                           </span>
-                          <span className="flex items-center bg-gray-100/70 px-3 py-1 rounded-xl">
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {formatDate(project.createdAt)}
+                          <span className="text-sm text-gray-500">
+                            Created {formatDate(project.createdAt)}
                           </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-                        {project.deployedUrl ? (
-                          <div className="flex items-center space-x-3">
-                            <span className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-green-100 text-green-800 border border-green-200">
-                              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
+                          {project.deployedUrl && (
+                            <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                              <span className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5"></span>
                               Live
                             </span>
-                            <a
-                              href={project.deployedUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow flex items-center space-x-2 font-medium"
-                            >
-                              <span>View Live</span>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </a>
-                          </div>
-                        ) : (
-                          <span className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-                            Draft
-                          </span>
+                          )}
+                        </div>
+                        {project.prompt && (
+                          <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                            {project.prompt}
+                          </p>
                         )}
                       </div>
-                    </div>
-                    
-                    <p className="text-gray-600 text-base mb-4">
-                      {project.prompt}
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-4 border-t border-gray-200/50">
-                      <span className="text-sm text-gray-500 font-medium mb-3 sm:mb-0">
-                        Project ID: {project.id}
-                      </span>
-                      <div className="flex space-x-3">
-                        <button className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-2 hover:bg-blue-50 rounded-lg">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                          </svg>
-                        </button>
+                      
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {project.deployedUrl && (
+                          <a
+                            href={project.deployedUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                          >
+                            View Live
+                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        )}
                         <button 
                           onClick={() => deleteProject(project.id)} 
-                          className="text-gray-400 hover:text-red-600 transition-colors duration-200 p-2 hover:bg-red-50 rounded-lg"
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete project"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1H8a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         </button>
@@ -433,29 +351,29 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <div className="w-20 h-20 mx-auto mb-6 bg-blue-100 rounded-2xl flex items-center justify-center">
-                  <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-16 h-16 mx-auto mb-4 bg-blue-50 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">No projects yet</h3>
-                <p className="text-gray-600 mb-8 text-lg">
-                  Create your first portfolio to get started on your journey
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects yet</h3>
+                <p className="text-gray-600 mb-6">
+                  Create your first portfolio to get started
                 </p>
                 <button
                   onClick={() => navigate('/templates')}
-                  className="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-3 mx-auto font-medium text-lg"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  <span>Create Your First Portfolio</span>
+                  Create Your First Portfolio
                 </button>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -7,9 +7,11 @@ import FileUpload from '../components/FileUpload';
 
 const CreatePortfolio: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   // ...existing code...
   const [projectId, setProjectId] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [showProjectIdInput, setShowProjectIdInput] = useState(false);
   const [compiledHtmlPreview, setCompiledHtmlPreview] = useState<string>('');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -62,6 +64,31 @@ const CreatePortfolio: React.FC = () => {
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
+    setShowProjectIdInput(true);
+    
+    // Scroll to project ID input after file selection
+    setTimeout(() => {
+      const projectIdSection = document.getElementById('project-id-section');
+      if (projectIdSection) {
+        projectIdSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 100);
+  };
+
+  const handleAvatarSelect = (avatar: File | null) => {
+    setSelectedAvatar(avatar);
+  };
+
+  const handleGeneratePortfolio = async () => {
+    if (!selectedFile) {
+      toast.push('Please select a resume file first.', { type: 'error' });
+      return;
+    }
+
+    await handleUpload(selectedFile, selectedAvatar || undefined);
   };
 
   const handleUpload = async (file: File, avatar?: File) => {
@@ -76,18 +103,30 @@ const CreatePortfolio: React.FC = () => {
       return;
     }
 
-    // Validate project ID if provided
-    if (projectId.trim()) {
-      const sanitizedId = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-      if (sanitizedId.length < 3) {
-        toast.push('Project ID must be at least 3 characters long when specified.', { type: 'error' });
-        return;
+    // Validate project ID - now mandatory
+    if (!projectId.trim()) {
+      toast.push('Project ID is required. Please enter a project name.', { type: 'error' });
+      const projectIdSection = document.getElementById('project-id-section');
+      if (projectIdSection) {
+        projectIdSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Focus the input field
+        setTimeout(() => {
+          const input = document.getElementById('projectId') as HTMLInputElement;
+          if (input) input.focus();
+        }, 300);
       }
-      if (sanitizedId !== projectId.trim().toLowerCase()) {
-        // Auto-apply sanitized ID and inform the user via toast (avoids native confirm popup)
-        setProjectId(sanitizedId);
-        toast.push(`Project ID sanitized to: ${sanitizedId}`, { type: 'info', duration: 5000 });
-      }
+      return;
+    }
+
+    const sanitizedId = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    if (sanitizedId.length < 3) {
+      toast.push('Project ID must be at least 3 characters long.', { type: 'error' });
+      return;
+    }
+    if (sanitizedId !== projectId.trim().toLowerCase()) {
+      // Auto-apply sanitized ID and inform the user via toast (avoids native confirm popup)
+      setProjectId(sanitizedId);
+      toast.push(`Project ID sanitized to: ${sanitizedId}`, { type: 'info', duration: 5000 });
     }
 
     setIsUploading(true);
@@ -125,9 +164,8 @@ const CreatePortfolio: React.FC = () => {
         }
       }
       
-      // Generate project name - use custom projectId if provided, otherwise generate one
-      const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate}-${Date.now()}`;
-      const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      // Generate project name - project ID is now mandatory
+      const projectName = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
       formData.append('projectName', projectName);
 
       // Step 1: send resume + template to backend to extract and compile HTML
@@ -150,8 +188,7 @@ const CreatePortfolio: React.FC = () => {
       }
 
       // Store deployment data and show deploy button
-      const deployProjectName = projectId.trim() || `portfolio-${selectedTemplate}-${Date.now()}`;
-      const finalProjectName = deployProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const finalProjectName = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
       const authToken = await getToken();
       
       setDeploymentData({
@@ -310,43 +347,86 @@ const CreatePortfolio: React.FC = () => {
             </p>
           </div>
 
-          {/* Project ID Input */}
-          <div className="mb-6">
-            <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 mb-2">
-              Project ID (Optional)
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="projectId"
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                placeholder="Enter custom project name (e.g., my-awesome-portfolio)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              />
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              </div>
-            </div>
-            <p className="mt-2 text-sm text-gray-500">
-              {projectId.trim() ? (
-                <>Your portfolio will be deployed as: <span className="font-mono text-blue-600">{projectId.toLowerCase().replace(/[^a-z0-9-]/g, '-')}-crux-ai</span> <span className="text-gray-400">(crux-ai suffix added for branding)</span></>
-              ) : (
-                'Leave empty to auto-generate a project name with crux-ai suffix'
-              )}
-            </p>
-          </div>
-
           <FileUpload 
             onFileSelect={handleFileSelect}
-            onUpload={handleUpload}
-            isUploading={isUploading}
+            onAvatarSelect={handleAvatarSelect}
+            // isUploading={isUploading}
             isAuthenticated={isSignedIn}
             showAvatarUpload={selectedTemplate === 'modern-professional'}
             templateName={getTemplateName(selectedTemplate)}
           />
+
+          {/* Project ID Input - Shows after file selection */}
+          {showProjectIdInput && (
+            <div id="project-id-section" className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center mb-4">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-800">Set Your Project Name</h3>
+                  <p className="text-sm text-blue-600">Choose a unique name for your portfolio project</p>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 mb-2">
+                  Project ID <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="projectId"
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
+                    placeholder="Enter your project name (e.g., my-awesome-portfolio)"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    required
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="mt-2 text-sm text-gray-500">
+                  {projectId.trim() ? (
+                    <>Your portfolio will be deployed as: <span className="font-mono text-blue-600">{projectId.toLowerCase().replace(/[^a-z0-9-]/g, '-')}-crux-ai</span> <span className="text-gray-400">(crux-ai suffix added for branding)</span></>
+                  ) : (
+                    'Required: Enter a unique project name (minimum 3 characters)'
+                  )}
+                </p>
+              </div>
+
+              {/* Generate Portfolio Button */}
+              <div className="pt-4 border-t border-blue-200">
+                <button
+                  onClick={handleGeneratePortfolio}
+                  disabled={isUploading || !projectId.trim() || !selectedFile}
+                  className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  {isUploading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Generating Portfolio...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Generate Portfolio
+                    </>
+                  )}
+                </button>
+                <p className="mt-2 text-xs text-blue-600 text-center">
+                  Your portfolio will be generated and ready for preview
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Deploy Actions - Show after successful upload */}
           {isReadyToDeploy && deploymentData && (
@@ -422,8 +502,7 @@ const CreatePortfolio: React.FC = () => {
                     onClick={async () => {
                         if (!compiledHtmlPreview) { toast.push('No compiled HTML ready to deploy', { type: 'error' }); return; }
                         const token = await getToken();
-                        const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`;
-                        const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                        const projectName = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
                         deployConfirmed(compiledHtmlPreview, projectName, token || '');
                       }}
                   >
@@ -479,8 +558,7 @@ const CreatePortfolio: React.FC = () => {
                     onClick={async () => {
                         if (!compiledHtmlPreview) { toast.push('No compiled HTML ready to deploy', { type: 'error' }); return; }
                         const token = await getToken();
-                        const baseProjectName = projectId.trim() || `portfolio-${selectedTemplate ?? 'default'}-${Date.now()}`;
-                        const projectName = baseProjectName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                        const projectName = projectId.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
                         deployConfirmed(compiledHtmlPreview, projectName, token || '');
                       }}
                   >
@@ -516,20 +594,6 @@ const CreatePortfolio: React.FC = () => {
             <p className="text-xs sm:text-sm text-gray-600">You've chosen the perfect template</p>
           </div>
 
-          <div className={`text-center ${projectId.trim() ? 'opacity-100' : 'opacity-50'}`}>
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
-              projectId.trim() ? 'bg-green-600' : 'bg-gray-300'
-            }`}>
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Project ID</h3>
-            <p className="text-xs sm:text-sm text-gray-600">
-              {projectId.trim() ? 'Custom ID set' : 'Optional custom name'}
-            </p>
-          </div>
-          
           <div className={`text-center ${selectedFile ? 'opacity-100' : 'opacity-50'}`}>
             <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
               selectedFile ? 'bg-green-600' : 'bg-gray-300'
@@ -541,6 +605,20 @@ const CreatePortfolio: React.FC = () => {
             <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Upload Resume</h3>
             <p className="text-xs sm:text-sm text-gray-600">
               {selectedFile ? 'Resume uploaded successfully' : 'Upload your PDF resume'}
+            </p>
+          </div>
+
+          <div className={`text-center ${projectId.trim() ? 'opacity-100' : showProjectIdInput ? 'opacity-100' : 'opacity-50'}`}>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${
+              projectId.trim() ? 'bg-green-600' : showProjectIdInput ? 'bg-blue-600' : 'bg-gray-300'
+            }`}>
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a.997.997 0 01-1.414 0l-7-7A1.997 1.997 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Project ID</h3>
+            <p className="text-xs sm:text-sm text-gray-600">
+              {projectId.trim() ? 'Project ID set' : showProjectIdInput ? 'Enter project name (required)' : 'Set project name'}
             </p>
           </div>
           
