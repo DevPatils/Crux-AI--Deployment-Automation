@@ -17,7 +17,7 @@ const corsOptions = {
   origin: [
     'https://www.crux-ai.me',
     'https://crux-ai.me',
-    'https://crux-ai-k3o2.onrender.com',
+    'https://crux-ai-deployment-automation.onrender.com',
     'http://localhost:5173',
     'http://localhost:3000'
   ],
