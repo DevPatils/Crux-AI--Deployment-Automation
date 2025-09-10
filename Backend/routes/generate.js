@@ -538,12 +538,22 @@ Resume Text: ${text}`
   }
 });
 
-
-
-
-
+// Handle OPTIONS request for upload-resume route
+genrouter.options("/upload-resume", (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.sendStatus(200);
+});
 
 genrouter.post("/upload-resume", upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'avatar', maxCount: 1 }]), async (req, res) => {
+  // Set CORS headers explicitly for this route
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
   try {
     const files = req.files;
     const resumeFile = files?.resume?.[0];
