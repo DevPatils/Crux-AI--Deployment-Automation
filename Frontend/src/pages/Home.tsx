@@ -22,7 +22,7 @@ const Home: React.FC = () => {
       <div className="relative z-10 min-h-screen flex flex-col px-4 sm:px-6 lg:px-8 py-4 overflow-hidden">
         {/* Hero Section - Compact */}
         <div className="text-center flex-shrink-0 max-w-4xl mx-auto pt-4 sm:pt-8 pb-4">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-tight px-2">
+          <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 mt-[20%] sm:mt-0 leading-tight px-2">
             <span className="text-gray-900">
               Turn your resume into a live portfolio
             </span>
